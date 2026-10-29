@@ -1,0 +1,1482 @@
+{
+  "@@locale": "es",
+  "appName": "Rumbo",
+  "tabHome": "Inicio",
+  "tabJobs": "Ofertas",
+  "tabApplications": "Procesos",
+  "applicationsTitle": "Postulaciones",
+  "tabResume": "HV",
+  "tabMore": "Más",
+  "signInTitle": "Entra a Rumbo",
+  "signInSubtitle": "Te enviamos un código de acceso a tu correo.",
+  "emailLabel": "Correo",
+  "emailInvalid": "Escribe un correo válido",
+  "sendCode": "Enviar código",
+  "codeLabel": "Código del correo",
+  "codeInvalid": "El código tiene entre 6 y 10 dígitos",
+  "verifyCode": "Entrar",
+  "changeEmail": "Usar otro correo",
+  "signInError": "No pudimos completar el acceso. Revisa el dato e inténtalo de nuevo.",
+  "signOut": "Cerrar sesión",
+  "demoBanner": "Modo local: sin conexión al servidor. Los datos no se guardan.",
+  "homeEmptyTitle": "Tu resumen del día",
+  "homeEmptyBody": "Aquí verás ofertas nuevas, seguimientos pendientes y próximas entrevistas.",
+  "jobsEmptyTitle": "Aún no hay ofertas",
+  "jobsEmptyBody": "Pega el enlace o la descripción de una oferta y verás si encaja con tu perfil.",
+  "applicationsEmptyTitle": "Aún no tienes postulaciones",
+  "applicationsEmptyBody": "Prepara una postulación desde una oferta o pulsa «Seguir esta oferta» en su detalle.",
+  "moreTitle": "Más",
+  "statusSaved": "Guardada",
+  "statusPreparing": "Preparando",
+  "statusApplied": "Postulada",
+  "statusInReview": "En revisión",
+  "statusTechnicalTest": "Prueba técnica",
+  "statusInterview": "Entrevista",
+  "statusOffer": "Oferta",
+  "statusAccepted": "Aceptada",
+  "statusDeclined": "Declinada",
+  "statusRejected": "Rechazada",
+  "statusNoResponse": "Sin respuesta",
+  "profileTitle": "Tu perfil",
+  "profileCompleteness": "Perfil completo al {percent}%",
+  "profileCompleteHint": "Tu perfil tiene lo necesario para generar una buena HV.",
+  "gapName": "Añade tu nombre.",
+  "gapHeadline": "Añade un titular, por ejemplo «Desarrollador Flutter Senior».",
+  "gapExperience": "Añade tu primera experiencia laboral.",
+  "gapAchievements": "Añade logros a cada experiencia. Con cifras, mejor.",
+  "gapSkills": "Añade al menos {count} habilidades.",
+  "gapSummary": "Escribe un resumen profesional de 2 o 3 frases.",
+  "gapLink": "Añade tu LinkedIn, GitHub o portafolio.",
+  "sectionBasics": "Datos básicos",
+  "sectionExperience": "Experiencia",
+  "sectionProjects": "Proyectos",
+  "sectionSkills": "Habilidades",
+  "basicsEmpty": "Aún no has añadido tus datos.",
+  "experienceEmpty": "Aún no has añadido experiencia.",
+  "projectsEmpty": "Aún no has añadido proyectos.",
+  "skillsEmpty": "Aún no has añadido habilidades.",
+  "edit": "Editar",
+  "add": "Añadir",
+  "save": "Guardar",
+  "delete": "Eliminar",
+  "cancel": "Cancelar",
+  "saveError": "No se pudo guardar. Inténtalo de nuevo.",
+  "loadError": "No se pudo cargar tu perfil.",
+  "retry": "Reintentar",
+  "requiredField": "Este campo es obligatorio",
+  "fullNameLabel": "Nombre completo",
+  "headlineLabel": "Titular",
+  "headlineHint": "Desarrollador Flutter Senior",
+  "locationLabel": "Ubicación",
+  "locationHint": "Bogotá, Colombia",
+  "summaryLabel": "Resumen profesional",
+  "linkedinLabel": "LinkedIn",
+  "githubLabel": "GitHub",
+  "portfolioLabel": "Portafolio o sitio web",
+  "urlInvalid": "Escribe un enlace completo, por ejemplo https://…",
+  "experienceNew": "Nueva experiencia",
+  "experienceEdit": "Editar experiencia",
+  "companyLabel": "Empresa",
+  "roleLabel": "Cargo",
+  "startDateLabel": "Inicio",
+  "endDateLabel": "Fin",
+  "currentJob": "Trabajo aquí actualmente",
+  "present": "Actualidad",
+  "endBeforeStart": "La fecha de fin debe ser posterior al inicio",
+  "achievementsLabel": "Logros",
+  "achievementsHelper": "Uno por línea. Ejemplo: Reduje el tiempo de arranque un 40 %.",
+  "technologiesLabel": "Tecnologías",
+  "technologiesHelper": "Separadas por comas: Flutter, Riverpod, Firebase",
+  "projectNew": "Nuevo proyecto",
+  "projectEdit": "Editar proyecto",
+  "projectNameLabel": "Nombre del proyecto",
+  "descriptionLabel": "Descripción",
+  "projectUrlLabel": "Enlace",
+  "skillNew": "Nueva habilidad",
+  "skillEdit": "Editar habilidad",
+  "skillNameLabel": "Habilidad",
+  "skillCategoryLabel": "Categoría",
+  "skillYearsLabel": "Años de experiencia",
+  "skillYears": "{years, plural, =1{1 año} other{{years} años}}",
+  "categoryLanguage": "Lenguaje",
+  "categoryFramework": "Framework",
+  "categoryTool": "Herramienta",
+  "categoryOther": "Otra",
+  "deleteConfirmTitle": "¿Eliminar «{name}»?",
+  "deleteConfirmBody": "Esta acción no se puede deshacer.",
+  "@profileCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "@gapSkills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@skillYears": {
+    "placeholders": {
+      "years": {
+        "type": "int"
+      }
+    }
+  },
+  "@deleteConfirmTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "importResume": "Importar HV en PDF",
+  "importTitle": "Importar tu HV",
+  "importIntro": "Elige tu hoja de vida en PDF. La IA la leerá y te mostrará lo que encontró antes de añadir nada a tu perfil.",
+  "importRules": "Solo se rellenan los campos vacíos y se añaden elementos nuevos. Lo que ya escribiste no cambia.",
+  "importPick": "Elegir PDF",
+  "importReading": "Leyendo tu HV…",
+  "importReadingHint": "Puede tardar hasta un minuto.",
+  "importReviewTitle": "Esto se añadirá a tu perfil",
+  "importNothingNew": "Tu perfil ya tiene todo lo que encontramos en el PDF.",
+  "importFields": "Datos básicos",
+  "importApply": "Añadir a mi perfil",
+  "importPickAnother": "Elegir otro PDF",
+  "importDone": "Perfil actualizado con tu HV.",
+  "importErrorTooLarge": "El PDF pesa más de 5 MB. Exporta una versión más ligera e inténtalo de nuevo.",
+  "importErrorUnreadable": "No se pudo leer el PDF. Comprueba que no esté protegido con contraseña ni sea una imagen escaneada.",
+  "importErrorRateLimited": "Hay demasiadas peticiones ahora mismo. Espera un minuto e inténtalo de nuevo.",
+  "importErrorOther": "No se pudo importar la HV. Revisa tu conexión e inténtalo de nuevo.",
+  "jobsLoadError": "No se pudieron cargar tus ofertas.",
+  "jobAdd": "Añadir oferta",
+  "jobAddTitle": "Nueva oferta",
+  "jobUrlLabel": "Enlace de la oferta",
+  "jobDescriptionLabel": "Descripción de la oferta",
+  "jobDescriptionHelper": "LinkedIn e Indeed no dejan leer sus páginas: copia la descripción y pégala aquí.",
+  "jobFormEmpty": "Pega el enlace o la descripción de la oferta.",
+  "jobAnalyze": "Analizar oferta",
+  "jobAnalyzing": "Analizando la oferta…",
+  "jobAnalyzingHint": "Comparando los requisitos con tu perfil.",
+  "jobNoDescription": "No pudimos leer la oferta desde el enlace. Copia la descripción y pégala arriba.",
+  "aiErrorRateLimited": "Se alcanzó el límite de uso de la IA. Espera un minuto e inténtalo de nuevo.",
+  "jobErrorOther": "No se pudo analizar la oferta. Revisa tu conexión e inténtalo de nuevo.",
+  "jobSave": "Guardar oferta",
+  "jobSaved": "Oferta guardada.",
+  "jobDuplicate": "Ya tienes guardada esta oferta.",
+  "jobAnalyzeAnother": "Volver y editar",
+  "jobDeleted": "Oferta eliminada.",
+  "jobNotFound": "Esta oferta ya no existe.",
+  "jobOpenLink": "Abrir oferta",
+  "jobRequirements": "Requisitos",
+  "jobDescription": "Descripción",
+  "jobUnknownCompany": "Empresa sin indicar",
+  "jobUntitled": "Oferta sin título",
+  "matchTitle": "Compatibilidad con tu perfil",
+  "matchMet": "Cumples",
+  "matchMissing": "Te falta",
+  "matchScoreSemantics": "Compatibilidad: {score} de 100",
+  "matchLevelHigh": "Alta",
+  "matchLevelMedium": "Media",
+  "matchLevelLow": "Baja",
+  "workModeRemote": "Remoto",
+  "workModeHybrid": "Híbrido",
+  "workModeOnsite": "Presencial",
+  "@matchScoreSemantics": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "phoneLabel": "Teléfono",
+  "phoneHint": "+57 300 000 0000",
+  "sectionEducation": "Estudios",
+  "educationEmpty": "Aún no has añadido estudios.",
+  "educationNew": "Nuevos estudios",
+  "educationEdit": "Editar estudios",
+  "institutionLabel": "Institución",
+  "degreeLabel": "Título o programa",
+  "studyingNow": "Estudio aquí actualmente",
+  "prepareApplication": "Preparar postulación",
+  "prepareTitle": "Preparar postulación",
+  "preparing": "Adaptando tu HV…",
+  "preparingHint": "Puede tardar hasta un minuto.",
+  "prepareEmptyProfile": "Añade al menos una experiencia a tu perfil para adaptar la HV.",
+  "prepareError": "No se pudo preparar la postulación. Revisa tu conexión e inténtalo de nuevo.",
+  "tabResumePreview": "HV",
+  "tabCoverLetter": "Carta",
+  "tabChanges": "Cambios",
+  "letterHelper": "Revísala y ajústala antes de enviarla.",
+  "copyLetter": "Copiar carta",
+  "letterCopied": "Carta copiada.",
+  "keywordsCovered": "Palabras clave de la oferta que cubre tu HV",
+  "rejectedTitle": "Descartado por no estar en tu perfil",
+  "rejectedBody": "La IA propuso esto, pero no se pudo comprobar con tus datos y no se usó.",
+  "saveVersion": "Guardar versión",
+  "versionSavedShort": "Guardada",
+  "exportPdf": "Exportar PDF",
+  "pdfError": "No se pudo generar el PDF. Inténtalo de nuevo.",
+  "aiErrorBusy": "La IA gratuita está saturada en este momento. Inténtalo de nuevo en unos minutos.",
+  "boardActive": "Activos",
+  "boardClosed": "Cerrados",
+  "followUpDue": "Toca hacer seguimiento",
+  "followUpOn": "Seguimiento: {date}",
+  "appliedDaysAgo": "{days, plural, =0{Postulado hoy} =1{Postulado hace 1 día} other{Postulado hace {days} días}}",
+  "nextStepTitle": "Actualizar estado",
+  "followUpTitle": "Seguimiento",
+  "followUpDoneButton": "Hecho, recordar en 7 días",
+  "followUpChange": "Cambiar fecha",
+  "followUpNone": "Sin seguimiento programado.",
+  "noResponseHint": "Llevas {days} días sin respuesta. Puedes marcarlo como «Sin respuesta» y seguir con otras ofertas.",
+  "notesLabel": "Notas",
+  "notesHint": "Contactos, impresiones, preguntas de la entrevista…",
+  "notesSaved": "Notas guardadas.",
+  "historyTitle": "Historial",
+  "historyCreated": "Creado como «{status}»",
+  "viewJob": "Ver oferta",
+  "trackJob": "Seguir esta oferta",
+  "viewProcess": "Ver proceso",
+  "processStatus": "Estado del proceso",
+  "actionPreparing": "Preparar",
+  "actionSaved": "Volver a guardada",
+  "actionApplied": "Ya me postulé",
+  "actionInReview": "Está en revisión",
+  "actionTechnicalTest": "Me enviaron una prueba",
+  "actionInterview": "Tengo entrevista",
+  "actionOffer": "Recibí una oferta",
+  "actionAccepted": "La acepté",
+  "actionDeclined": "La rechacé",
+  "actionRejected": "Me descartaron",
+  "actionNoResponse": "Sin respuesta",
+  "homeFollowUps": "Seguimientos pendientes",
+  "homeActive": "Procesos activos",
+  "homeInterviews": "Entrevistas y pruebas",
+  "homeJobs": "Ofertas guardadas",
+  "homeAllClear": "No tienes seguimientos pendientes.",
+  "homeStart": "Empieza añadiendo una oferta en la pestaña Ofertas.",
+  "@followUpOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@appliedDaysAgo": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@noResponseHint": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "@historyCreated": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "searchPrefsTitle": "Preferencias de búsqueda",
+  "searchPrefsIntro": "Rumbo buscará ofertas en Get on Board, Remotive, Himalayas, Remote OK y We Work Remotely y te sugerirá las que encajen con tu perfil.",
+  "searchRolesLabel": "Cargos",
+  "searchRolesHelper": "Separados por comas: Flutter Developer, Mobile Developer",
+  "searchTechLabel": "Tecnologías clave",
+  "searchTechHelper": "Separadas por comas: Flutter, Dart",
+  "searchCountriesLabel": "Países donde puedes trabajar",
+  "searchCountriesHelper": "Separados por comas. Los remotos limitados a otros países se descartan.",
+  "searchWorkModes": "Modalidad",
+  "searchSources": "Portales",
+  "searchMinScore": "Sugerir desde {score} de compatibilidad",
+  "searchNeedsTerms": "Escribe al menos un cargo o una tecnología.",
+  "searchNeedsMode": "Elige al menos una modalidad.",
+  "searchNeedsSource": "Elige al menos un portal.",
+  "searchSaved": "Preferencias guardadas.",
+  "jobsTabSuggested": "Sugeridas ({count})",
+  "jobsTabSaved": "Guardadas ({count})",
+  "searchNow": "Buscar ahora",
+  "searchRunning": "Buscando ofertas…",
+  "searchLastRun": "Última búsqueda: {date}",
+  "searchSetupTitle": "Configura la búsqueda automática",
+  "searchSetupBody": "Dinos qué cargos y tecnologías buscas y Rumbo te sugerirá ofertas cada día.",
+  "searchSetupButton": "Configurar búsqueda",
+  "searchNoSuggestions": "No hay sugerencias pendientes. Pulsa «Buscar ahora» o vuelve más tarde.",
+  "searchResult": "{count, plural, =0{No hay ofertas nuevas que encajen con tu perfil.} =1{1 oferta nueva sugerida.} other{{count} ofertas nuevas sugeridas.}}",
+  "searchSourcesFailed": "No respondieron: {sources}.",
+  "searchTooSoon": "Acabas de buscar. Espera unos minutos para volver a hacerlo.",
+  "searchNoPreferences": "Configura tus preferencias de búsqueda primero.",
+  "searchError": "No se pudo completar la búsqueda. Inténtalo de nuevo.",
+  "suggestionKeep": "Guardar oferta",
+  "suggestionDismiss": "Descartar",
+  "suggestionKept": "Oferta guardada.",
+  "suggestionDismissed": "Sugerencia descartada.",
+  "foundOn": "Encontrada en {source}",
+  "homeSuggestions": "Sugerencias nuevas",
+  "@searchMinScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "@jobsTabSuggested": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@jobsTabSaved": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@searchLastRun": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@searchResult": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@searchSourcesFailed": {
+    "placeholders": {
+      "sources": {
+        "type": "String"
+      }
+    }
+  },
+  "@foundOn": {
+    "placeholders": {
+      "source": {
+        "type": "String"
+      }
+    }
+  },
+  "watchedTitle": "Empresas que vigilas",
+  "watchedHelper": "Pega el enlace de su página de empleo en Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee o Teamtailor. Por ejemplo: jobs.ashbyhq.com/truelogic o apply.workable.com/huggingface",
+  "watchedLabel": "Enlace de la página de empleo",
+  "watchedAdd": "Añadir empresa",
+  "watchedInvalid": "No reconocemos ese enlace. Debe ser de Greenhouse, Lever, Ashby, Workable, SmartRecruiters, Recruitee o Teamtailor.",
+  "watchedDuplicate": "Ya vigilas esa empresa.",
+  "watchedLimit": "Puedes vigilar hasta {count} empresas.",
+  "watchedEmpty": "Aún no vigilas ninguna empresa.",
+  "watchedRemove": "Dejar de vigilar {name}",
+  "@watchedLimit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@watchedRemove": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "statsTitle": "Estadísticas",
+  "statsOpen": "Ver estadísticas",
+  "statsFunnel": "Embudo",
+  "statsFunnelSaved": "En el tablero",
+  "statsFunnelApplied": "Postuladas",
+  "statsFunnelResponded": "Con respuesta",
+  "statsFunnelInterviews": "Entrevistas o pruebas",
+  "statsFunnelOffers": "Ofertas recibidas",
+  "statsResponseRate": "{rate}% de tus postulaciones recibieron respuesta.",
+  "statsResponseTime": "Las empresas tardan {days} días de media en responder.",
+  "statsNoApplications": "Cuando marques procesos como «Postulada» verás aquí qué porcentaje recibe respuesta y cuánto tardan las empresas.",
+  "statsBySource": "Por origen",
+  "statsSourceManual": "Añadidas por ti",
+  "statsSourceRow": "{applied} postuladas · {responded} con respuesta",
+  "statsGaps": "Lo que más te piden y no tienes",
+  "statsGapsHint": "Según {count, plural, =1{1 oferta analizada} other{{count} ofertas analizadas}}. Es lo que más rendiría aprender o destacar.",
+  "statsGapsEmpty": "Analiza o guarda más ofertas para ver qué requisitos se repiten.",
+  "statsGapRow": "{count, plural, =1{en 1 oferta} other{en {count} ofertas}}",
+  "statsLoadError": "No se pudieron cargar las estadísticas.",
+  "@statsResponseRate": {
+    "placeholders": {
+      "rate": {
+        "type": "int"
+      }
+    }
+  },
+  "@statsResponseTime": {
+    "placeholders": {
+      "days": {
+        "type": "String"
+      }
+    }
+  },
+  "@statsSourceRow": {
+    "placeholders": {
+      "applied": {
+        "type": "int"
+      },
+      "responded": {
+        "type": "int"
+      }
+    }
+  },
+  "@statsGapsHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@statsGapRow": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "interviewsTitle": "Entrevistas",
+  "interviewAdd": "Programar entrevista",
+  "interviewNew": "Nueva entrevista",
+  "interviewEdit": "Editar entrevista",
+  "interviewKind": "Tipo",
+  "kindScreening": "Primera llamada",
+  "kindTechnical": "Prueba técnica",
+  "kindHr": "Recursos humanos",
+  "kindFinal": "Entrevista final",
+  "kindOther": "Otra",
+  "interviewDate": "Fecha",
+  "interviewTime": "Hora",
+  "interviewDuration": "Duración (minutos)",
+  "interviewLocation": "Enlace o lugar",
+  "interviewLocationHint": "https://meet.google.com/… o dirección",
+  "interviewNotes": "Notas",
+  "interviewNotesHint": "Con quién, qué preparar, preguntas…",
+  "interviewOutcome": "Resultado",
+  "outcomePending": "Pendiente",
+  "outcomePassed": "Superada",
+  "outcomeFailed": "No superada",
+  "interviewStatusChanged": "Entrevista guardada. El proceso pasó a «{status}».",
+  "interviewSaved": "Entrevista guardada.",
+  "interviewsEmpty": "Sin entrevistas programadas.",
+  "homeUpcoming": "Próximas entrevistas",
+  "homeNoUpcoming": "No tienes entrevistas próximas.",
+  "interviewJoin": "Abrir enlace",
+  "interviewDurationInvalid": "Entre 5 y 600 minutos",
+  "@interviewStatusChanged": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "gmailTitle": "Conectar Gmail",
+  "gmailIntro": "Rumbo puede leer los correos de las empresas de tus procesos activos y proponerte cambios de estado o entrevistas. Tú decides si aplicarlos.",
+  "gmailHow": "Un pequeño script en tu cuenta de Google revisa tu correo cada hora. Tu acceso a Gmail no sale de Google: solo se envían a Rumbo los correos que mencionan a las empresas de tus procesos y tus alertas de empleo de LinkedIn.",
+  "gmailPrivacy": "Con la IA gratuita, Google puede usar esos correos para mejorar sus productos.",
+  "gmailStep1": "Pulsa «Copiar script». Incluye una clave personal: no la compartas.",
+  "gmailStep2": "Abre script.google.com, crea un proyecto nuevo, borra lo que trae y pega el script.",
+  "gmailStep3": "Arriba, elige la función «instalar» y pulsa Ejecutar.",
+  "gmailStep4": "Autoriza el acceso con tu cuenta de Google. Si ves «Google no ha verificado esta aplicación», entra en Configuración avanzada → Ir a (no seguro): el script es tuyo.",
+  "gmailCopy": "Copiar script",
+  "gmailCopied": "Script copiado. Pégalo en script.google.com.",
+  "gmailRegenerate": "Generar clave nueva y copiar",
+  "gmailRegenerateHint": "La clave anterior dejará de funcionar: tendrás que pegar el script nuevo.",
+  "gmailDisconnect": "Desconectar Gmail",
+  "gmailDisconnected": "Gmail desconectado.",
+  "gmailNotConnected": "Aún no has conectado Gmail.",
+  "gmailWaiting": "Clave creada el {date}. Esperando a que el script se ejecute por primera vez.",
+  "gmailConnected": "Conectado. El script habló con Rumbo por última vez el {date}.",
+  "gmailOpenScript": "Abrir script.google.com",
+  "emailUpdatesTitle": "Novedades del correo",
+  "emailApply": "Aplicar",
+  "emailDismiss": "Ignorar",
+  "emailApplied": "Propuesta aplicada.",
+  "emailDismissed": "Propuesta ignorada.",
+  "emailProposal": "Propone: {status}",
+  "emailInterviewAt": "Fecha: {date}",
+  "@gmailWaiting": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@gmailConnected": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "@emailProposal": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "@emailInterviewAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "practiceTitle": "Practicar entrevista",
+  "practiceOpen": "Practicar entrevista",
+  "practiceIntro": "Un entrevistador con IA te hará preguntas sobre esta oferta y evaluará cada respuesta. Responde como en una entrevista real; puedes dictar con el micrófono del teclado.",
+  "practiceMode": "Tipo de preguntas",
+  "modeTechnical": "Técnicas",
+  "modeBehavioral": "Comportamiento",
+  "modeMixed": "Mixtas",
+  "practiceLanguage": "Idioma",
+  "languageEs": "Español",
+  "languageEn": "Inglés",
+  "practiceCount": "{count} preguntas",
+  "practiceStart": "Empezar",
+  "practiceThinking": "El entrevistador está pensando…",
+  "practiceAnswerHint": "Tu respuesta…",
+  "practiceSend": "Responder",
+  "practiceQuestion": "Pregunta {number} de {total}",
+  "practiceScore": "{score} de 5",
+  "practiceStrengths": "Bien",
+  "practiceImprove": "Mejora",
+  "practiceBetter": "Respuesta mejorada",
+  "practiceCopy": "Copiar",
+  "practiceCopied": "Respuesta copiada.",
+  "practiceSummary": "Resultado de la práctica",
+  "practiceAgain": "Practicar otra vez",
+  "practiceError": "No se pudo continuar la práctica. Inténtalo de nuevo.",
+  "practiceRetry": "Reintentar",
+  "@practiceCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "@practiceQuestion": {
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "@practiceScore": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "answersTitle": "Banco de respuestas",
+  "answersIntro": "Prepara tus respuestas a las preguntas que salen en casi todas las entrevistas y cópialas cuando las necesites.",
+  "answersEmpty": "Empieza por una de estas preguntas habituales:",
+  "answersAdd": "Nueva respuesta",
+  "answerNew": "Nueva respuesta",
+  "answerEdit": "Editar respuesta",
+  "answerQuestion": "Pregunta",
+  "answerText": "Tu respuesta",
+  "answerCopy": "Copiar",
+  "answerCopied": "Respuesta copiada.",
+  "answerSaveToBank": "Guardar en el banco",
+  "answerSavedToBank": "Guardada en tu banco de respuestas.",
+  "commonAboutYou": "Háblame de ti",
+  "commonWhyCompany": "¿Por qué quieres trabajar con nosotros?",
+  "commonSalary": "¿Cuál es tu expectativa salarial?",
+  "commonWhyLeave": "¿Por qué quieres cambiar de trabajo?",
+  "commonChallenge": "Cuéntame un reto técnico que hayas resuelto",
+  "commonWeakness": "¿Cuál es tu mayor área de mejora?",
+  "commonConflict": "Cuéntame un desacuerdo con un compañero y cómo lo resolviste",
+  "offerTitle": "Detalles de la oferta",
+  "offerEdit": "Editar condiciones",
+  "offerAddDetails": "Añadir condiciones",
+  "offerSalary": "Salario",
+  "offerCurrency": "Moneda",
+  "offerPeriod": "Periodo",
+  "periodMonth": "Mensual",
+  "periodYear": "Anual",
+  "offerWorkMode": "Modalidad",
+  "offerStart": "Fecha de inicio",
+  "offerDeadline": "Responder antes del",
+  "offerBenefits": "Beneficios",
+  "offerBenefitsHint": "Seguro médico, vacaciones, equipo, bonos…",
+  "offerNotes": "Notas",
+  "offerSaved": "Condiciones guardadas.",
+  "offerNoDetails": "Aún no has añadido las condiciones.",
+  "offerSalaryInvalid": "Escribe un número, sin puntos ni símbolos",
+  "offerCompare": "Comparar ofertas",
+  "compareTitle": "Comparar ofertas",
+  "compareEmpty": "Cuando marques un proceso como «Oferta» podrás comparar sus condiciones aquí.",
+  "compareMonthly": "{amount} al mes",
+  "compareHighest": "Mejor salario en {currency}",
+  "compareMixedCurrencies": "Las ofertas están en monedas distintas: compáralas en la misma moneda antes de decidir.",
+  "compareFit": "Compatibilidad {score}",
+  "compareDeadline": "Responder antes del {date}",
+  "notSet": "Sin indicar",
+  "@compareMonthly": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@compareHighest": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "@compareFit": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "@compareDeadline": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "negotiateTitle": "Preparar negociación",
+  "negotiateOpen": "Preparar negociación",
+  "negotiateIntro": "La IA prepara una respuesta a la empresa con tu contraoferta y los argumentos para defenderla, usando tus logros reales. Revísala antes de enviarla.",
+  "negotiateTarget": "Salario que quieres proponer",
+  "negotiateTargetHelper": "En la misma moneda y periodo que la oferta. Déjalo vacío para pedir revisar condiciones.",
+  "negotiatePriorities": "Qué más te importa",
+  "negotiatePrioritiesHint": "Fecha de inicio, días de vacaciones, equipo, horario…",
+  "negotiateEnglish": "Escribir la respuesta en inglés",
+  "negotiateGenerate": "Preparar respuesta",
+  "negotiateGenerating": "Preparando la respuesta…",
+  "negotiateEmail": "Respuesta para la empresa",
+  "negotiatePoints": "Argumentos para la llamada",
+  "negotiateRisks": "Antes de aceptar, confirma",
+  "negotiateError": "No se pudo preparar la respuesta. Inténtalo de nuevo.",
+  "briefTitle": "Ficha de la empresa",
+  "briefOpen": "Ficha de la empresa",
+  "briefIntro": "Un resumen de la empresa y del puesto a partir de la oferta, con preguntas para la entrevista.",
+  "briefGenerate": "Preparar ficha",
+  "briefRegenerate": "Volver a preparar",
+  "briefGenerating": "Preparando la ficha…",
+  "briefError": "No se pudo preparar la ficha. Inténtalo de nuevo.",
+  "briefTeam": "Equipo y tecnología",
+  "briefCulture": "Cultura y beneficios",
+  "briefQuestions": "Preguntas para hacerles",
+  "briefRedFlags": "Conviene aclarar",
+  "briefGeneral": "Información general (no viene de la oferta)",
+  "briefGeneratedAt": "Preparada el {date}",
+  "@briefGeneratedAt": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreeting": "Hola, {name}",
+  "@homeGreeting": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "homeGreetingNoName": "Hola",
+  "homeToday": "Para hoy",
+  "homeTaskCount": "{count, plural, =1{1 tarea} other{{count} tareas}}",
+  "@homeTaskCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "homeAllDoneTitle": "Todo al día",
+  "homeAllDoneBody": "No tienes tareas pendientes. La próxima búsqueda automática es mañana a las 7:00.",
+  "homeTaskFollowUp": "Seguimiento a {company}",
+  "@homeTaskFollowUp": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "homeTaskInterview": "Prepara tu entrevista",
+  "homeMetricActive": "Activos",
+  "homeMetricInterviews": "Entrevistas",
+  "homeMetricSuggested": "Sugeridas",
+  "applicationsNeedsAction": "Necesita acción",
+  "profileCompleteLabel": "Perfil completo",
+  "resumeMissingContact": "A tu HV le falta el correo o el teléfono. Añádelos en tus datos básicos para que la empresa pueda contactarte.",
+  "filterGoodMatch": "Nota ≥ {score}",
+  "@filterGoodMatch": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "filterRecent": "Últimos {days} días",
+  "@filterRecent": {
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "filterSource": "Portal",
+  "filterAllSources": "Todos los portales",
+  "filterClear": "Quitar filtros",
+  "filterNoResults": "Ninguna oferta coincide con estos filtros.",
+  "dismissedTitle": "Descartadas · {count}",
+  "@dismissedTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dismissedHint": "Las que descartaste en los últimos 30 días.",
+  "dismissedRestore": "Recuperar",
+  "suggestionRestored": "Oferta recuperada: vuelve a estar en Sugeridas.",
+  "pasteFromClipboard": "Pegar",
+  "clipboardEmpty": "No hay texto copiado.",
+  "reviewTitle": "Revisión ATS",
+  "reviewCardBody": "Revisa tu HV base como la leería un ATS y mira qué mejorar.",
+  "reviewScoreCaption": "Nota de tu HV base",
+  "reviewAllGood": "Tu HV cumple todas las comprobaciones. Revisa ahora las palabras clave de tus cargos.",
+  "reviewIssuesTitle": "Qué mejorar · {count}",
+  "@reviewIssuesTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewFix": "Corregir",
+  "severityHigh": "Importante",
+  "severityMedium": "Recomendado",
+  "severityLow": "Detalle",
+  "issueNoName": "Falta tu nombre.",
+  "issueNoEmail": "Falta tu correo: la empresa no podrá contactarte.",
+  "issueNoPhone": "Falta tu teléfono.",
+  "issueNoHeadline": "Falta un titular, por ejemplo «Flutter Developer»: es lo primero que lee el ATS.",
+  "issueNoSummary": "Falta el perfil profesional: 3 o 4 frases sobre qué haces y qué has logrado.",
+  "issueShortSummary": "Tu perfil profesional es corto ({count} caracteres). Apunta a 300-600.",
+  "@issueShortSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueLongSummary": "Tu perfil profesional es largo ({count} caracteres). Déjalo por debajo de 700.",
+  "@issueLongSummary": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueNoLink": "Añade tu LinkedIn, GitHub o portafolio.",
+  "issueNoExperience": "Añade tu experiencia laboral.",
+  "issueNoAchievements": "{role} en {company}: no tiene logros.",
+  "@issueNoAchievements": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "issueFewNumbers": "{role} en {company}: {count, plural, =1{1 logro sin cifras} other{{count} logros sin cifras}}. Añade porcentajes, tiempos, usuarios o volumen.",
+  "@issueFewNumbers": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueWeakStart": "{role} en {company}: {count, plural, =1{1 logro empieza} other{{count} logros empiezan}} como tarea («Responsable de…»). Empieza con un verbo de acción: «Reduje», «Lancé», «Automaticé».",
+  "@issueWeakStart": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueLongBullets": "{role} en {company}: {count, plural, =1{1 logro es demasiado largo} other{{count} logros son demasiado largos}}. Una o dos líneas por logro.",
+  "@issueLongBullets": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueFewSkills": "Tienes {count} habilidades. Añade al menos 5.",
+  "@issueFewSkills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueNoEducation": "Añade tus estudios.",
+  "keywordsTitle": "Palabras clave de tus cargos",
+  "keywordsHint": "La IA lista lo que los ATS buscan para tus cargos y Rumbo comprueba cuáles aparecen en tu HV.",
+  "keywordsLoad": "Buscar palabras clave",
+  "keywordsReload": "Volver a buscar",
+  "keywordsPresent": "En tu HV · {count}",
+  "@keywordsPresent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsMissing": "No aparecen · {count}",
+  "@keywordsMissing": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsMissingHint": "Si de verdad las dominas, añádelas a tus logros o habilidades. Toca una para añadirla como habilidad.",
+  "keywordsNoRoles": "Escribe tus cargos en Preferencias de búsqueda para buscar sus palabras clave.",
+  "keywordsError": "No se pudieron obtener las palabras clave. Inténtalo de nuevo.",
+  "remindersTitle": "Recordatorios",
+  "remindersHint": "Avisos en este teléfono, aunque Rumbo esté cerrado. No necesitan internet.",
+  "remindersProcesses": "Seguimientos y entrevistas",
+  "remindersProcessesHint": "El día del seguimiento a las 9:00, la víspera de cada entrevista a las 19:00 y una hora antes.",
+  "remindersDaily": "Recordatorio diario",
+  "remindersDailyHint": "Cada día a las 8:00, para revisar sugerencias y tareas.",
+  "remindersDenied": "Las notificaciones de Rumbo están desactivadas. Actívalas en los ajustes del teléfono.",
+  "remindersPlanned": "{count, plural, =0{No hay avisos programados.} =1{1 aviso programado.} other{{count} avisos programados.}}",
+  "@remindersPlanned": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "remindersTest": "Enviar aviso de prueba",
+  "reminderTestTitle": "Así se verán tus recordatorios",
+  "reminderTestBody": "Rumbo te avisará de seguimientos y entrevistas.",
+  "reminderFollowUpTitle": "Toca hacer seguimiento",
+  "reminderFollowUpBody": "{role} en {company}: escribe a la empresa para saber cómo va tu proceso.",
+  "@reminderFollowUpBody": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderEveTitle": "Mañana tienes entrevista",
+  "reminderEveBody": "{company} a las {time}. Repasa la ficha de la empresa y practica unos minutos.",
+  "@reminderEveBody": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderSoonTitle": "Entrevista en una hora",
+  "reminderSoonBody": "{company} a las {time}. ¡Mucha suerte!",
+  "@reminderSoonBody": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDailyTitle": "Revisa tu búsqueda",
+  "reminderDailyBody": "Mira tus sugerencias nuevas y las tareas de hoy en Rumbo.",
+  "aiErrorDailyLimit": "Llegaste al límite diario de uso de la IA en Rumbo. Vuelve a intentarlo mañana.",
+  "welcomeTitle": "Antes de empezar",
+  "welcomeIntro": "Rumbo te ayuda a encontrar ofertas, adaptar tu HV con IA y seguir cada proceso hasta la oferta.",
+  "welcomeDataTitle": "Cómo se usan tus datos",
+  "welcomePrivate": "Tu perfil, tus ofertas y tus procesos se guardan en una base de datos privada: solo tú puedes verlos.",
+  "welcomeAi": "Para analizar ofertas y adaptar tu HV, Rumbo envía el texto necesario a Google Gemini en su nivel gratuito. Google puede usar ese contenido para mejorar sus productos, así que no incluyas datos sensibles como tu número de documento.",
+  "welcomeLimit": "Cada persona puede usar la IA hasta {limit} veces al día.",
+  "@welcomeLimit": {
+    "placeholders": {
+      "limit": {
+        "type": "int"
+      }
+    }
+  },
+  "welcomeDelete": "Puedes eliminar tu cuenta y todos tus datos cuando quieras desde Más.",
+  "welcomeAccept": "Acepto y empiezo",
+  "welcomeLeave": "Salir",
+  "firstStepsTitle": "Primeros pasos",
+  "firstStepsProfile": "Completa tu HV: importa tu PDF o escribe tus datos",
+  "firstStepsSearch": "Dile a Rumbo qué cargos buscas",
+  "firstStepsGmail": "Opcional: conecta Gmail para detectar respuestas",
+  "updateAvailable": "Hay una versión nueva de Rumbo ({version}).",
+  "@updateAvailable": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "updateDownload": "Descargar",
+  "deleteAccount": "Eliminar cuenta",
+  "deleteAccountTitle": "¿Eliminar tu cuenta?",
+  "deleteAccountBody": "Se borrarán tu perfil, tus ofertas, tus procesos, tus entrevistas y todo lo demás. No se puede deshacer.",
+  "deleteAccountConfirm": "Eliminar todo",
+  "deleteAccountError": "No se pudo eliminar la cuenta. Inténtalo de nuevo.",
+  "reviewRefresh": "Volver a revisar",
+  "reviewScoreUp": "Revisión actualizada: tu nota subió de {from} a {to}.",
+  "@reviewScoreUp": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewScoreDown": "Revisión actualizada: tu nota bajó de {from} a {to}.",
+  "@reviewScoreDown": {
+    "placeholders": {
+      "from": {
+        "type": "int"
+      },
+      "to": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewScoreSame": "Revisión actualizada: tu nota sigue en {score}.",
+  "@reviewScoreSame": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "categoryContact": "Contacto",
+  "categoryStructure": "Estructura",
+  "categoryAchievements": "Logros",
+  "categoryCoherence": "Coherencia y palabras clave",
+  "categoryFormat": "Formato",
+  "reviewCategoriesTitle": "Nota por partes",
+  "reviewCategoryIssues": "{category} · {count}",
+  "@reviewCategoryIssues": {
+    "placeholders": {
+      "category": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "reviewHistoryStart": "Empezaste en {score}",
+  "@reviewHistoryStart": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "issueInvalidEmail": "Tu correo no parece válido. Revisa que esté bien escrito.",
+  "issuePhoneNoCountryCode": "Añade el indicativo a tu teléfono (+57): muchas empresas remotas son de otros países.",
+  "issueNoLocation": "Añade tu ciudad y país: los ATS filtran por ubicación.",
+  "issueInvalidLink": "{count, plural, =1{Un enlace no es válido} other{{count} enlaces no son válidos}}: deben empezar por https://.",
+  "@issueInvalidLink": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueEndBeforeStart": "{role} en {company}: la fecha de fin es anterior a la de inicio.",
+  "@issueEndBeforeStart": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "issueFutureDate": "{role} en {company}: tiene una fecha en el futuro.",
+  "@issueFutureDate": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "issueDateGap": "Hay un hueco de {count} meses antes de {role} en {company}. Si estudiaste o trabajaste por tu cuenta, añádelo.",
+  "@issueDateGap": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "issueSeveralCurrent": "Tienes {count} empleos marcados como actuales. Pon fecha de fin a los que terminaron.",
+  "@issueSeveralCurrent": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueFirstPerson": "{role} en {company}: {count, plural, =1{1 logro está escrito} other{{count} logros están escritos}} en primera persona («yo», «mi»). Escríbelos sin sujeto: «Reduje…», «Lancé…».",
+  "@issueFirstPerson": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      },
+      "company": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueDuplicates": "{count, plural, =1{Hay 1 logro repetido} other{Hay {count} logros repetidos}} entre empleos.",
+  "@issueDuplicates": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueBuzzwords": "Evita frases vacías como «{words}»: demuéstralo con un logro concreto.",
+  "@issueBuzzwords": {
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "issueTechNotInSkills": "Usas {words} en tu experiencia pero no {count, plural, =1{está} other{están}} en Habilidades. Añádelas: los ATS buscan en esa sección.",
+  "@issueTechNotInSkills": {
+    "placeholders": {
+      "words": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueHeadlineNoRole": "Tu titular no menciona el cargo que buscas («{role}»). Los ATS comparan el titular con el puesto.",
+  "@issueHeadlineNoRole": {
+    "placeholders": {
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "issueSummaryNoTech": "Tu perfil profesional no menciona tus tecnologías principales.",
+  "issueSummaryNoYears": "Indica en tu perfil profesional cuántos años de experiencia tienes, por ejemplo «3 años con Flutter».",
+  "issueSpecialCharacters": "{count, plural, =1{1 texto tiene} other{{count} textos tienen}} emojis o símbolos (★, ✔, •) que los ATS leen mal.",
+  "@issueSpecialCharacters": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueAllCaps": "{count, plural, =1{1 texto está} other{{count} textos están}} en MAYÚSCULAS. Escríbelos en minúsculas normales.",
+  "@issueAllCaps": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueMixedLanguages": "Mezclas español e inglés en tu HV. Usa un solo idioma: Rumbo la traduce al adaptarla a cada oferta.",
+  "issueTooLong": "Tu HV tiene {count} palabras: pasa de dos páginas. Recorta logros antiguos o poco relevantes.",
+  "@issueTooLong": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "issueTooShort": "Tu HV tiene solo {count} palabras. Añade logros para que el ATS tenga con qué compararte.",
+  "@issueTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsInExperience": "En tu experiencia · {count}",
+  "@keywordsInExperience": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsOnlySkills": "Solo en Habilidades · {count}",
+  "@keywordsOnlySkills": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsOnlySkillsHint": "Menciónalas en un logro: los ATS valoran más una tecnología usada en tu experiencia que en una lista.",
+  "keywordsMarketHint": "El número indica en cuántas de tus {count} ofertas aparece.",
+  "@keywordsMarketHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "keywordsUpdated": "Actualizadas el {date}.",
+  "@keywordsUpdated": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "atsTest": "Probar cómo lo lee un ATS",
+  "atsTestTitle": "Así lee tu PDF un ATS",
+  "atsTestSummary": "{passed} de {total} comprobaciones superadas",
+  "@atsTestSummary": {
+    "placeholders": {
+      "passed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "atsName": "Nombre",
+  "atsEmail": "Correo",
+  "atsPhone": "Teléfono",
+  "atsLink": "Enlace (LinkedIn o portafolio)",
+  "atsLocation": "Ciudad y país",
+  "atsSections": "Secciones: perfil, experiencia, estudios y habilidades",
+  "atsExperiences": "Cargos y empresas",
+  "atsDates": "Fechas de cada empleo",
+  "atsSkills": "Habilidades",
+  "atsCharacters": "Sin caracteres rotos",
+  "atsCompleteness": "Texto completo ({percent} % leído)",
+  "@atsCompleteness": {
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "atsPages": "Extensión: {pages} páginas (máximo 2)",
+  "@atsPages": {
+    "placeholders": {
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "atsMissing": "No se encontró: {detail}",
+  "@atsMissing": {
+    "placeholders": {
+      "detail": {
+        "type": "String"
+      }
+    }
+  },
+  "atsExtractedText": "Texto que lee el ATS",
+  "atsError": "No se pudo leer el PDF. Inténtalo de nuevo.",
+  "coverageTitle": "Palabras clave de esta oferta",
+  "coverageHint": "{count, plural, =1{1 palabra clave detectada} other{{count} palabras clave detectadas}} en la oferta.",
+  "@coverageHint": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "coverageBase": "Tu HV base",
+  "coverageTailored": "HV adaptada",
+  "coverageMissing": "Siguen faltando: {words}. Añádelas solo si de verdad las dominas.",
+  "@coverageMissing": {
+    "placeholders": {
+      "words": {
+        "type": "String"
+      }
+    }
+  },
+  "improveWithAi": "Mejorar con IA",
+  "improveTitle": "Mejorar logros",
+  "improveHint": "La IA propone y tú decides. Completa los huecos [entre corchetes] con tus datos reales: nunca inventa cifras.",
+  "improveBefore": "Antes",
+  "improveNew": "Logro nuevo",
+  "improveUse": "Usar",
+  "improveFill": "Completa los huecos entre corchetes de los logros que vas a usar.",
+  "improveSave": "Guardar logros",
+  "improveSaved": "Logros actualizados.",
+  "improveEmpty": "Tus logros ya están bien escritos: la IA no propone cambios.",
+  "improveLoading": "Revisando tus logros…",
+  "emailDraftsTitle": "Escribir a la empresa",
+  "emailDraftsHint": "La IA redacta el correo y tú lo revisas y lo envías desde tu correo.",
+  "emailKindFollowUp": "Seguimiento",
+  "emailKindThankYou": "Agradecer la entrevista",
+  "emailKindRejection": "Responder al rechazo",
+  "emailDraftTitle": "Borrador de correo",
+  "emailDraftWriting": "Redactando el correo…",
+  "emailTo": "Para",
+  "emailSubject": "Asunto",
+  "emailBody": "Mensaje",
+  "emailCopy": "Copiar",
+  "emailCopied": "Correo copiado. Pégalo en tu correo.",
+  "emailOpen": "Abrir en el correo",
+  "emailOpenError": "No se pudo abrir la app de correo. Usa «Copiar».",
+  "emailRegenerate": "Otra versión",
+  "emailReviewHint": "Revisa el texto antes de enviarlo: Rumbo nunca envía correos por ti.",
+  "learningTitle": "Plan de aprendizaje",
+  "learningCardEmpty": "Descubre qué aprender según lo que piden tus ofertas.",
+  "learningCardSummary": "{topics, plural, =1{1 tema} other{{topics} temas}} · {learning} aprendiendo · {mastered} dominados",
+  "@learningCardSummary": {
+    "placeholders": {
+      "topics": {
+        "type": "int"
+      },
+      "learning": {
+        "type": "int"
+      },
+      "mastered": {
+        "type": "int"
+      }
+    }
+  },
+  "learningMine": "Tu plan",
+  "learningSuggestions": "Qué te conviene aprender",
+  "learningSuggestionsHint": "Lo que piden tus ofertas y no aparece en tu HV. El número es en cuántas de tus ofertas sale.",
+  "learningNoSuggestions": "Sin sugerencias por ahora. Busca las palabras clave de tus cargos en la Revisión ATS o analiza más ofertas.",
+  "learningOpenReview": "Ir a la Revisión ATS",
+  "learningAdd": "Añadir al plan",
+  "learningAdded": "«{topic}» añadido a tu plan.",
+  "@learningAdded": {
+    "placeholders": {
+      "topic": {
+        "type": "String"
+      }
+    }
+  },
+  "learningDemand": "{count, plural, =0{No sale en tus ofertas} =1{Sale en 1 oferta} other{Sale en {count} ofertas}}",
+  "@learningDemand": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "learningStatusPending": "Pendiente",
+  "learningStatusLearning": "Aprendiendo",
+  "learningStatusMastered": "Dominado",
+  "learningGenerate": "Crear plan con IA",
+  "learningGenerating": "Preparando tu plan…",
+  "learningRegenerate": "Otro plan",
+  "learningWhy": "Por qué te lo piden",
+  "learningSteps": "Pasos",
+  "learningResources": "Recursos gratuitos",
+  "learningNoResources": "No se pudieron comprobar los enlaces. Busca la documentación oficial del tema.",
+  "learningProject": "Mini proyecto para demostrarlo",
+  "learningHours": "Unas {hours} horas",
+  "@learningHours": {
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "learningMasteredTitle": "¡Lo dominas!",
+  "learningMasteredBody": "Añádelo a tus habilidades y menciónalo en un logro de tu experiencia: así sube tu nota ATS y tu compatibilidad.",
+  "learningAddSkill": "Añadir a habilidades",
+  "learningAlreadySkill": "Ya está en tus habilidades.",
+  "learningDelete": "Quitar del plan",
+  "learningPlanHint": "La IA propone pasos, recursos y un proyecto. Los enlaces se comprueban antes de mostrártelos.",
+  "watchedSuggestions": "Sugerencias con Flutter",
+  "watchedSuggestionsHint": "Empresas que trabajan con Flutter y contratan en remoto desde Colombia.",
+  "watchedSuggestionNote": "{company, select, canonical{Ubuntu usa Flutter · remoto mundial} flutterflow{Constructor de apps Flutter · remoto global} truelogic{Desarrolladores para EE. UU. · remoto LATAM y Bogotá} supabase{SDK de Flutter · remoto global y América} revenuecat{SDK de Flutter · remoto América} other{}}",
+  "@watchedSuggestionNote": {
+    "placeholders": {
+      "company": {
+        "type": "String"
+      }
+    }
+  },
+  "gmailLinkedinTitle": "Alertas de empleo de LinkedIn",
+  "gmailLinkedinBody": "Crea alertas de empleo en LinkedIn (por ejemplo «Flutter Developer» en remoto). Cuando lleguen a tu Gmail, Rumbo convertirá cada oferta en una sugerencia de Ofertas con su compatibilidad. La nota sale del título, porque el correo no trae la descripción completa.",
+  "gmailLinkedinUpdate": "Tu script es anterior a las alertas de LinkedIn. Pulsa «Generar clave nueva y copiar», pega el script otra vez en tu proyecto y ejecuta «instalar».",
+  "jobCompleteTitle": "Completar oferta",
+  "jobCompleteHint": "Pega la descripción completa de la oferta: ábrela en LinkedIn o en su portal y copia el texto. Rumbo la analizará y recalculará tu compatibilidad. Se conservan el cargo, la empresa, el enlace y su proceso.",
+  "jobCompleteLabel": "Descripción completa",
+  "jobCompleteAction": "Analizar y completar",
+  "jobCompleted": "Oferta completada. Compatibilidad: {score}.",
+  "@jobCompleted": {
+    "placeholders": {
+      "score": {
+        "type": "int"
+      }
+    }
+  },
+  "jobCompleteTooShort": "Pega al menos {count} caracteres de la descripción.",
+  "@jobCompleteTooShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "jobNeedsDescription": "Esta oferta llegó sin la descripción completa: la compatibilidad sale solo del título.",
+  "jobUpdateDescription": "Completar o cambiar la descripción",
+  "englishLevelLabel": "Nivel de inglés",
+  "englishLevelHelper": "La IA lo usa cuando una oferta pide inglés.",
+  "englishLevelNone": "Sin indicar",
+  "englishLevelA1": "Principiante (A1)",
+  "englishLevelA2": "Básico (A2)",
+  "englishLevelB1": "Intermedio (B1)",
+  "englishLevelB2": "Intermedio alto (B2)",
+  "englishLevelC1": "Avanzado (C1)",
+  "englishLevelC2": "Muy avanzado (C2)",
+  "englishLevelNative": "Nativo o bilingüe",
+  "salaryTitle": "Expectativa salarial (bruto mensual)",
+  "salaryHelper": "La IA la compara con el salario de las ofertas. Puedes llenar solo una moneda.",
+  "salaryMinLabel": "Mínimo {currency}",
+  "@salaryMinLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "salaryMaxLabel": "Máximo {currency}",
+  "@salaryMaxLabel": {
+    "placeholders": {
+      "currency": {
+        "type": "String"
+      }
+    }
+  },
+  "salaryRangeInvalid": "El máximo no puede ser menor que el mínimo.",
+  "profileEnglish": "Inglés: {level}",
+  "@profileEnglish": {
+    "placeholders": {
+      "level": {
+        "type": "String"
+      }
+    }
+  },
+  "profileSalary": "Expectativa: {range} al mes",
+  "@profileSalary": {
+    "placeholders": {
+      "range": {
+        "type": "String"
+      }
+    }
+  },
+  "contactTitle": "Contacto y postulación",
+  "contactAdd": "Añadir contacto del reclutador",
+  "contactEmailCopied": "Correo copiado.",
+  "contactLinkedin": "Perfil o publicación en LinkedIn",
+  "contactSubject": "Asunto: «{subject}»",
+  "@contactSubject": {
+    "placeholders": {
+      "subject": {
+        "type": "String"
+      }
+    }
+  },
+  "contactAsksSalary": "Piden tu expectativa salarial",
+  "contactNameLabel": "Reclutador",
+  "contactEmailLabel": "Correo para postular",
+  "contactLinkedinLabel": "LinkedIn del reclutador o de la publicación",
+  "contactLinkedinHelper": "Enlace de linkedin.com.",
+  "contactSubjectLabel": "Asunto que piden",
+  "contactSubjectHelper": "Cópialo tal cual: algunos reclutadores filtran los correos por el asunto.",
+  "contactAsksSalaryLabel": "Piden la expectativa salarial",
+  "applyMethodLabel": "Cómo postular",
+  "applyMethodNone": "Sin indicar",
+  "applyMethodEmail": "Por correo",
+  "applyMethodDirectMessage": "Por mensaje directo en LinkedIn",
+  "applyMethodPortal": "En su portal o formulario",
+  "applyEmailTitle": "Postular por correo",
+  "applyNeedsResume": "Primero prepara la HV adaptada a esta oferta: es la que se adjunta al correo.",
+  "applyPrepareResume": "Preparar HV adaptada",
+  "applyReviewHint": "Revisa el correo. Al abrirlo en tu app de correo se adjunta la HV adaptada en PDF; Rumbo no envía nada.",
+  "applyPlaceholders": "Completa lo que está entre corchetes antes de abrir el correo.",
+  "applyOpen": "Abrir en el correo con la HV",
+  "applyRecipientCopied": "Destinatario copiado: pégalo en «Para».",
+  "applyWebHint": "Se descargó la HV: adjúntala en el correo que se abrió.",
+  "applySentQuestion": "¿Ya lo enviaste?",
+  "applyMarkApplied": "Marcar como postulada",
+  "applyMarked": "Marcada como postulada.",
+  "downloadResume": "Descargar HV"
+}

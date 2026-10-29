@@ -1,0 +1,45 @@
+project_id = "rumbo"
+
+# La función valida el token del usuario por su cuenta (compatible con las
+# claves de firma nuevas de Supabase).
+[functions.import-resume]
+verify_jwt = false
+
+[functions.analyze-job]
+verify_jwt = false
+
+[functions.tailor-resume]
+verify_jwt = false
+
+[functions.search-jobs]
+verify_jwt = false
+
+[functions.email-sync]
+verify_jwt = false
+
+[functions.interview-coach]
+verify_jwt = false
+
+[functions.negotiation-draft]
+verify_jwt = false
+
+[functions.company-brief]
+verify_jwt = false
+
+[functions.resume-keywords]
+verify_jwt = false
+
+[functions.delete-account]
+verify_jwt = false
+
+[functions.ats-read]
+verify_jwt = false
+
+[functions.rewrite-achievements]
+verify_jwt = false
+
+[functions.email-draft]
+verify_jwt = false
+
+[functions.learning-plan]
+verify_jwt = false

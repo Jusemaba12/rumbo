@@ -1,0 +1,5 @@
+# Copiar como android/key.properties (no se sube a git) y rellenar.
+storeFile=/Users/juan.manzano/rumbo-upload.jks
+storePassword=LA_CONTRASEÑA_QUE_ELEGISTE
+keyAlias=rumbo
+keyPassword=LA_CONTRASEÑA_QUE_ELEGISTE

@@ -1,0 +1,242 @@
+<title>Guía de Rumbo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: guía de una columna pensada para el móvil; pasos numerados porque el orden importa; casillas solo en la configuración inicial */
+:root {
+  --bg: #F5F7F6;
+  --surface: #FFFFFF;
+  --fg: #17221F;
+  --muted: #5A6A65;
+  --line: #D9E1DE;
+  --accent: #0D6B5B;
+  --accent-soft: #E1F0EC;
+  --warn: #B26A0C;
+  --warn-soft: #FBEFDD;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1513; --surface: #161E1B; --fg: #E3EBE8; --muted: #93A49F; --line: #2A3632;
+    --accent: #52C3AC; --accent-soft: #173A33; --warn: #E3A54E; --warn-soft: #3A2B16; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1513; --surface: #161E1B; --fg: #E3EBE8; --muted: #93A49F; --line: #2A3632;
+  --accent: #52C3AC; --accent-soft: #173A33; --warn: #E3A54E; --warn-soft: #3A2B16; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.55; }
+.page { max-width: 640px; margin: 0 auto; padding-inline: 16px; padding-block: 28px 64px; }
+header p.kicker { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 8vw, 40px); line-height: 1.05; margin: 8px 0 10px; letter-spacing: -.02em; text-wrap: balance; }
+.lede { color: var(--muted); margin: 0 0 18px; }
+nav.jump { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+nav.jump a { font-size: 13px; color: var(--fg); text-decoration: none; border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; background: var(--surface); }
+nav.jump a:focus-visible, nav.jump a:hover { border-color: var(--accent); outline: none; }
+section { margin-top: 34px; scroll-margin-top: 16px; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 22px; line-height: 1.2; margin: 0 0 4px; display: flex; gap: 10px; align-items: baseline; text-wrap: balance; }
+h2 .n { font-family: var(--font-mono); font-size: 13px; color: var(--accent); flex: none; }
+.when { font-size: 14px; color: var(--muted); margin: 0 0 12px; }
+ol.steps { list-style: none; counter-reset: s; padding: 0; margin: 0; display: grid; gap: 10px; }
+ol.steps > li { counter-increment: s; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px 12px 46px; position: relative; }
+ol.steps > li::before { content: counter(s); position: absolute; left: 12px; top: 11px; width: 24px; height: 24px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); font-family: var(--font-mono); font-size: 13px; display: grid; place-items: center; }
+ol.steps > li.check { padding-left: 46px; }
+ol.steps > li.check::before { display: none; }
+ol.steps > li.check input { position: absolute; left: 13px; top: 13px; width: 22px; height: 22px; accent-color: var(--accent); margin: 0; }
+ol.steps > li.check.done strong { text-decoration: line-through; color: var(--muted); }
+li strong { font-weight: 600; }
+li p { margin: 4px 0 0; color: var(--muted); font-size: 15px; }
+li ul { margin: 6px 0 0; padding-left: 18px; color: var(--muted); font-size: 15px; }
+li ul li { margin-bottom: 2px; }
+.path { font-family: var(--font-mono); font-size: 13px; background: var(--accent-soft); color: var(--accent); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.key { border-left: 3px solid var(--warn); background: var(--warn-soft); border-radius: 0 10px 10px 0; padding: 12px 14px; margin-top: 12px; font-size: 15px; }
+.key strong { color: var(--fg); }
+.rules { display: grid; gap: 10px; }
+.rule { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.rule h3 { margin: 0 0 4px; font-size: 16px; }
+.rule p { margin: 0; color: var(--muted); font-size: 15px; }
+.progress { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+footer { margin-top: 40px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); padding-top: 14px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+</style>
+
+<div class="page">
+  <header>
+    <p class="kicker">Guía de uso</p>
+    <h1>Cómo sacarle partido a Rumbo</h1>
+    <p class="lede">Una configuración inicial y luego unos minutos al día. Rumbo prepara y te avisa; tú decides y envías.</p>
+    <nav class="jump" aria-label="Secciones">
+      <a href="#inicio">Configurar</a>
+      <a href="#diaria">Cada día</a>
+      <a href="#oferta">Postularte</a>
+      <a href="#proceso">Seguimiento</a>
+      <a href="#ofertas">Ofertas</a>
+      <a href="#semanal">Cada semana</a>
+      <a href="#reglas">Reglas</a>
+    </nav>
+  </header>
+
+  <section id="inicio">
+    <h2><span class="n">01</span>Configuración inicial</h2>
+    <p class="when">Una sola vez, unos 15 minutos. Marca cada paso al terminarlo.</p>
+    <p class="progress" id="progress" aria-live="polite"></p>
+    <ol class="steps" id="setup">
+      <li class="check"><input type="checkbox" id="setup-profile" aria-label="Perfil completo">
+        <strong>Completa tu perfil</strong> <span class="path">HV</span>
+        <p>Correo, teléfono, estudios y logros con cifras en cada experiencia. Todo lo demás se basa en el perfil. «Importar HV en PDF» solo rellena lo que falte.</p>
+      </li>
+      <li class="check"><input type="checkbox" id="setup-search" aria-label="Búsqueda configurada">
+        <strong>Configura la búsqueda</strong> <span class="path">Más → Preferencias de búsqueda</span>
+        <ul>
+          <li>Cargos: «Flutter Developer, Mobile Developer».</li>
+          <li>Revisa tecnologías y países.</li>
+          <li>Nota mínima en 50 si quieres ver más ofertas.</li>
+          <li>En «Empresas que vigilas», pega las páginas de empleo que te interesen.</li>
+        </ul>
+      </li>
+      <li class="check"><input type="checkbox" id="setup-answers" aria-label="Banco de respuestas preparado">
+        <strong>Prepara tu banco de respuestas</strong> <span class="path">Más → Banco de respuestas</span>
+        <p>Como mínimo: «Háblame de ti», tu expectativa salarial y por qué quieres cambiar de trabajo.</p>
+      </li>
+      <li class="check"><input type="checkbox" id="setup-gmail" aria-label="Gmail conectado">
+        <strong>Conecta Gmail</strong> <span class="path">Más → Conectar Gmail</span>
+        <p>Ya lo tienes hecho. Debe decir «Conectado».</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="diaria">
+    <h2><span class="n">02</span>Rutina diaria</h2>
+    <p class="when">5 a 10 minutos.</p>
+    <ol class="steps">
+      <li><strong>Abre Inicio</strong>
+        <ul>
+          <li><strong>Sugerencias nuevas:</strong> la búsqueda corre sola cada día a las 7:00.</li>
+          <li><strong>Novedades del correo:</strong> pulsa Aplicar o Ignorar.</li>
+          <li><strong>Próximas entrevistas</strong> y <strong>seguimientos pendientes</strong>.</li>
+        </ul>
+      </li>
+      <li><strong>Revisa las sugeridas</strong> <span class="path">Ofertas → Sugeridas</span>
+        <p>Guarda las que te interesen. Descarta las demás deslizando a la izquierda; no vuelven a aparecer.</p>
+      </li>
+      <li><strong>Añade lo que veas fuera</strong> <span class="path">Ofertas → Añadir oferta</span>
+        <p>De LinkedIn o Indeed, pega la descripción. De Get on Board, Greenhouse o Lever, basta el enlace.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="oferta">
+    <h2><span class="n">03</span>Cuando una oferta te interesa</h2>
+    <p class="when">Desde el detalle de la oferta.</p>
+    <ol class="steps">
+      <li><strong>Mira la compatibilidad</strong>
+        <p>Qué cumples y qué te falta.</p>
+      </li>
+      <li><strong>Ficha de la empresa</strong>
+        <p>Qué hacen, equipo, cultura y preguntas para la entrevista.</p>
+      </li>
+      <li><strong>Preparar postulación</strong>
+        <p>Revisa la HV adaptada y la pestaña Cambios, ajusta la carta, Exportar PDF y Guardar versión.</p>
+      </li>
+      <li><strong>Postúlate en la web de la empresa</strong>
+        <p>Con ese PDF y esa carta. Rumbo no envía nada por ti.</p>
+      </li>
+      <li><strong>Vuelve y marca «Ya me postulé»</strong> <span class="path">Procesos → el proceso</span>
+        <p>El paso más importante: activa la vigilancia de Gmail, el recordatorio a 7 días y las estadísticas.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="proceso">
+    <h2><span class="n">04</span>Mientras el proceso avanza</h2>
+    <p class="when">Lo que hacer en cada situación.</p>
+    <ol class="steps">
+      <li><strong>Te responden</strong>
+        <p>Suele aparecer en Novedades del correo. Si no, cambia el estado en el detalle del proceso.</p>
+      </li>
+      <li><strong>Te citan</strong>
+        <p>Programar entrevista, con fecha, enlace y notas. El día antes, Practicar entrevista con preguntas mixtas y guarda en el banco las respuestas que te gusten.</p>
+      </li>
+      <li><strong>Pasan 7 días sin noticias</strong>
+        <p>Inicio te avisa. Escribe a la empresa y pulsa «Hecho, recordar en 7 días».</p>
+      </li>
+      <li><strong>Te descartan, o pasan 21 días</strong>
+        <p>Márcalo: el proceso pasa a Cerrados y deja de pedirte seguimiento.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="ofertas">
+    <h2><span class="n">05</span>Cuando recibas una oferta</h2>
+    <p class="when">Antes de responder a la empresa.</p>
+    <ol class="steps">
+      <li><strong>Marca «Recibí una oferta»</strong>
+        <p>Y registra las condiciones: salario, beneficios y fecha límite.</p>
+      </li>
+      <li><strong>Compara</strong> <span class="path">Procesos → ⇄</span>
+        <p>Salario mensual equivalente, mejor oferta por moneda, compatibilidad y plazos.</p>
+      </li>
+      <li><strong>Preparar negociación</strong>
+        <p>Escribe el salario que quieres proponer y tus prioridades. Revisa el borrador antes de enviarlo.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="semanal">
+    <h2><span class="n">06</span>Una vez por semana</h2>
+    <ol class="steps">
+      <li><strong>Revisa las estadísticas</strong> <span class="path">Inicio → Ver estadísticas</span>
+        <p>Si la tasa de respuesta es baja, revisa tu HV. «Lo que más te piden y no tienes» indica qué aprender o destacar.</p>
+      </li>
+      <li><strong>Reinstala la app en el iPhone</strong>
+        <p>Cuando deje de abrirse: la firma gratuita caduca cada 7 días. Conecta el teléfono al Mac y pídelo; tus datos no se pierden.</p>
+      </li>
+    </ol>
+  </section>
+
+  <section id="reglas">
+    <h2><span class="n">07</span>Tres reglas</h2>
+    <div class="rules">
+      <div class="rule">
+        <h3>Marca siempre «Ya me postulé»</h3>
+        <p>Sin eso no hay seguimiento, ni lectura de Gmail, ni estadísticas.</p>
+      </div>
+      <div class="rule">
+        <h3>Revisa todo lo que escribe la IA</h3>
+        <p>Está configurada para no inventar, pero la última palabra es tuya antes de enviar.</p>
+      </div>
+      <div class="rule">
+        <h3>Calidad sobre cantidad</h3>
+        <p>Mejor 5 postulaciones bien adaptadas por semana que 30 genéricas.</p>
+      </div>
+    </div>
+    <div class="key">
+      <strong>Si la IA dice que está saturada,</strong> espera unos minutos y reintenta: usa el nivel gratuito de Gemini.
+    </div>
+  </section>
+
+  <footer>Rumbo · guía para uso personal</footer>
+</div>
+
+<script>
+(function () {
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('#setup input[type=checkbox]'));
+  var progress = document.getElementById('progress');
+  function read(id) { try { return localStorage.getItem('rumbo-guide-' + id) === '1'; } catch (e) { return false; } }
+  function write(id, value) { try { localStorage.setItem('rumbo-guide-' + id, value ? '1' : '0'); } catch (e) {} }
+  function render() {
+    var done = boxes.filter(function (b) { return b.checked; }).length;
+    progress.textContent = done + ' de ' + boxes.length + ' pasos hechos';
+    boxes.forEach(function (b) { b.parentElement.classList.toggle('done', b.checked); });
+  }
+  boxes.forEach(function (box) {
+    box.checked = read(box.id);
+    box.addEventListener('change', function () { write(box.id, box.checked); render(); });
+  });
+  render();
+})();
+</script>

@@ -1,0 +1,518 @@
+<title>Diseño de Rumbo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: documento técnico con índice lateral fijo en escritorio, índice horizontal en móvil; secciones numeradas como un spec */
+:root {
+  --bg: #F5F7F6;
+  --surface: #FFFFFF;
+  --fg: #17221F;
+  --muted: #5A6A65;
+  --line: #D9E1DE;
+  --accent: #0D6B5B;
+  --accent-soft: #E1F0EC;
+  --signal: #B26A0C;
+  --signal-soft: #FBEFDD;
+  --risk: #B03A2E;
+  --risk-soft: #F8E4E1;
+  --font-display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0F1513; --surface: #161E1B; --fg: #E3EBE8; --muted: #93A49F; --line: #2A3632;
+    --accent: #52C3AC; --accent-soft: #173A33; --signal: #E3A54E; --signal-soft: #3A2B16;
+    --risk: #EE8577; --risk-soft: #3D1F1B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0F1513; --surface: #161E1B; --fg: #E3EBE8; --muted: #93A49F; --line: #2A3632;
+  --accent: #52C3AC; --accent-soft: #173A33; --signal: #E3A54E; --signal-soft: #3A2B16;
+  --risk: #EE8577; --risk-soft: #3D1F1B; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1180px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 80px; display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; }
+nav.toc { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 24px); align-self: start; font-size: 13px; }
+nav.toc p { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin: 0 0 10px; }
+nav.toc ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; counter-reset: t; }
+nav.toc li { counter-increment: t; }
+nav.toc a { display: flex; gap: 8px; color: var(--muted); text-decoration: none; padding: 4px 8px; border-radius: 6px; }
+nav.toc a::before { content: counter(t, decimal-leading-zero); font-family: var(--font-mono); font-size: 11px; padding-top: 2px; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--fg); background: var(--accent-soft); outline: none; }
+main { min-width: 0; }
+header.doc { border-bottom: 1px solid var(--line); padding-bottom: 28px; margin-bottom: 8px; }
+.meta { font-family: var(--font-mono); font-size: 12px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 6px 18px; }
+h1 { font-family: var(--font-display); font-weight: 700; font-size: clamp(34px, 5vw, 50px); line-height: 1.05; margin: 14px 0 12px; letter-spacing: -.02em; text-wrap: balance; }
+.lede { font-size: 18px; max-width: 64ch; color: var(--fg); margin: 0; }
+section { padding-top: 44px; counter-increment: s; }
+main { counter-reset: s; }
+h2 { font-family: var(--font-display); font-weight: 600; font-size: 26px; line-height: 1.2; margin: 0 0 14px; display: flex; gap: 12px; align-items: baseline; text-wrap: balance; }
+h2::before { content: counter(s, decimal-leading-zero); font-family: var(--font-mono); font-size: 13px; color: var(--accent); font-weight: 500; }
+h3 { font-size: 16px; font-weight: 600; margin: 24px 0 8px; }
+p, li { max-width: 72ch; }
+p { margin: 0 0 12px; }
+ul { margin: 0 0 12px; padding-left: 20px; }
+li { margin-bottom: 4px; }
+code, .mono { font-family: var(--font-mono); font-size: 13px; }
+code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+a { color: var(--accent); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin: 16px 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; min-width: 0; }
+.card h4 { margin: 0 0 6px; font-size: 15px; }
+.card p, .card li { font-size: 14px; color: var(--muted); }
+.card ul { margin: 0; }
+.label { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.callout { border-left: 3px solid var(--signal); background: var(--signal-soft); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; max-width: 78ch; }
+.callout p:last-child { margin: 0; }
+.callout.good { border-color: var(--accent); background: var(--accent-soft); }
+.tbl { overflow-x: auto; margin: 14px 0 18px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 500; white-space: nowrap; }
+tr:last-child td { border-bottom: 0; }
+td:first-child { font-weight: 500; white-space: nowrap; }
+.pill { display: inline-block; font-family: var(--font-mono); font-size: 11px; padding: 2px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); white-space: nowrap; }
+.pill.warn { background: var(--signal-soft); color: var(--signal); }
+.pill.risk { background: var(--risk-soft); color: var(--risk); }
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 16px; overflow-x: auto; margin: 14px 0 18px; }
+pre.mermaid { margin: 0; background: transparent; font-family: var(--font-mono); font-size: 12px; }
+/* mockups */
+.phones { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin: 18px 0; }
+.phone { background: var(--surface); border: 1px solid var(--line); border-radius: 26px; padding: 14px 12px 12px; min-width: 0; }
+.phone .bar { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; color: var(--muted); padding: 0 6px 10px; }
+.phone .ttl { font-family: var(--font-display); font-weight: 600; font-size: 17px; padding: 0 6px 8px; }
+.job { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px 10px; font-size: 13px; }
+.job b { font-weight: 600; }
+.job .co { color: var(--muted); font-size: 12px; }
+.score { grid-row: span 2; align-self: center; font-family: var(--font-mono); font-weight: 500; font-size: 13px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; border: 3px solid var(--accent); color: var(--accent); }
+.score.mid { border-color: var(--signal); color: var(--signal); }
+.tags { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.kan { display: grid; gap: 6px; font-size: 12px; }
+.kan .col { border: 1px dashed var(--line); border-radius: 10px; padding: 8px; }
+.kan .col .h { display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 10px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+.kan .it { background: var(--bg); border-radius: 6px; padding: 5px 8px; margin-top: 4px; }
+.diff { font-family: var(--font-mono); font-size: 11.5px; line-height: 1.5; border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; margin-bottom: 8px; }
+.diff .del { color: var(--risk); text-decoration: line-through; }
+.diff .add { color: var(--accent); }
+.btn { display: block; text-align: center; background: var(--accent); color: var(--bg); border-radius: 10px; padding: 9px; font-weight: 600; font-size: 13px; }
+.meter { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin: 4px 0 10px; }
+.meter i { display: block; height: 100%; background: var(--accent); }
+.phase { display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.phase:last-child { border-bottom: 0; }
+.phase .tag { font-family: var(--font-mono); font-size: 12px; color: var(--accent); }
+.phase .tag b { display: block; font-family: var(--font-display); font-size: 22px; color: var(--fg); }
+.phase h4 { margin: 0 0 4px; font-size: 16px; }
+.phase p { color: var(--muted); font-size: 14px; }
+ol.q { padding-left: 22px; }
+ol.q li { margin-bottom: 8px; }
+@media (max-width: 860px) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 20px; padding-block: 24px 60px; padding-inline: 16px; }
+  nav.toc { position: static; }
+  nav.toc ol { display: flex; flex-wrap: wrap; gap: 4px; }
+  nav.toc a { border: 1px solid var(--line); }
+  .phase { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+html { scroll-behavior: smooth; }
+</style>
+
+<div class="wrap">
+  <nav class="toc" aria-label="Índice">
+    <p>Contenido</p>
+    <ol>
+      <li><a href="#vision">Visión y alcance</a></li>
+      <li><a href="#principios">Principios</a></li>
+      <li><a href="#restricciones">Restricciones reales</a></li>
+      <li><a href="#arquitectura">Arquitectura</a></li>
+      <li><a href="#stack">Stack técnico</a></li>
+      <li><a href="#modulos">Módulos</a></li>
+      <li><a href="#pantallas">Pantallas y navegación</a></li>
+      <li><a href="#datos">Modelo de datos</a></li>
+      <li><a href="#ia">Flujos de IA</a></li>
+      <li><a href="#fuentes">Fuentes de empleo</a></li>
+      <li><a href="#plataformas">iOS y Android</a></li>
+      <li><a href="#seguridad">Seguridad y privacidad</a></li>
+      <li><a href="#calidad">Calidad y CI/CD</a></li>
+      <li><a href="#fases">Fases</a></li>
+      <li><a href="#riesgos">Riesgos</a></li>
+      <li><a href="#preguntas">Preguntas abiertas</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <header class="doc">
+      <div class="meta"><span>Documento de diseño v0.1</span><span>29 sep 2026</span><span>Estado: borrador para revisión</span></div>
+      <h1>Rumbo: tu copiloto para conseguir empleo</h1>
+      <p class="lede">App móvil Flutter (iOS y Android) que encuentra ofertas compatibles con tu perfil, adapta tu hoja de vida para cada una, prepara la postulación para que la confirmes y sigue cada proceso hasta la oferta final.</p>
+      <p class="meta" style="margin-top:14px">«Rumbo» es un nombre provisional.</p>
+    </header>
+
+    <section id="vision">
+      <h2>Visión y alcance</h2>
+      <p>Buscar trabajo es un embudo: encontrar ofertas, filtrarlas, adaptar la HV, postularse, hacer seguimiento, preparar entrevistas y negociar. Hoy cada paso vive en una herramienta distinta. Rumbo los junta en una app y usa IA en los pasos que más tiempo consumen.</p>
+      <div class="grid">
+        <div class="card"><span class="label">Usuario inicial</span><h4>Uso personal</h4><p>Un único usuario: desarrollador móvil Flutter/Dart. El diseño permite abrirlo a más usuarios después sin reescribir.</p></div>
+        <div class="card"><span class="label">Métrica principal</span><h4>Entrevistas por semana</h4><p>No medimos postulaciones enviadas. Medimos respuestas y entrevistas conseguidas.</p></div>
+        <div class="card"><span class="label">Fuera de alcance v1</span><h4>Bots en portales cerrados</h4><p>Nada de automatizar clics en LinkedIn o Indeed. Ver <a href="#restricciones">restricciones</a>.</p></div>
+      </div>
+    </section>
+
+    <section id="principios">
+      <h2>Principios</h2>
+      <div class="grid">
+        <div class="card"><h4>La IA prepara, tú confirmas</h4><p>Toda acción que sale hacia fuera (postular, enviar un correo) necesita tu aprobación en la app.</p></div>
+        <div class="card"><h4>Cero datos inventados</h4><p>La IA puede reordenar, reformular y resaltar, pero cada afirmación de la HV debe venir de tu perfil verificado.</p></div>
+        <div class="card"><h4>Calidad sobre volumen</h4><p>Pocas postulaciones muy adaptadas. La app prioriza por compatibilidad y descarta ofertas de baja calidad.</p></div>
+        <div class="card"><h4>Secretos fuera del móvil</h4><p>Las claves de la IA y de los servicios viven solo en el servidor. La app nunca las ve.</p></div>
+        <div class="card"><h4>Paridad iOS / Android</h4><p>Cada funcionalidad se prueba en ambas plataformas antes de darla por terminada.</p></div>
+        <div class="card"><h4>Costo de IA controlado</h4><p>Modelo pequeño para tareas masivas, modelo grande solo bajo demanda. Registro de gasto por llamada.</p></div>
+      </div>
+    </section>
+
+    <section id="restricciones">
+      <h2>Restricciones reales</h2>
+      <div class="callout">
+        <p><strong>LinkedIn, Indeed y Computrabajo no tienen API pública para postularse</strong>, y sus condiciones prohíben bots y scraping. Automatizarlos arriesga el bloqueo de tu cuenta. En esos portales Rumbo deja todo preparado (HV adaptada, carta, respuestas copiables) y abre la oferta para que envíes tú.</p>
+      </div>
+      <div class="tbl"><table>
+        <thead><tr><th>Tipo de portal</th><th>Ejemplos</th><th>Qué hace Rumbo</th><th>Nivel</th></tr></thead>
+        <tbody>
+          <tr><td>API pública de búsqueda</td><td>Adzuna, Jooble, Remotive, RemoteOK, Get on Board, Himalayas</td><td>Descarga ofertas automáticamente cada pocas horas</td><td><span class="pill">Automático</span></td></tr>
+          <tr><td>Portales de empresa (ATS)</td><td>Greenhouse, Lever, Ashby</td><td>Lee sus tableros públicos y prepara el formulario; envío con tu confirmación</td><td><span class="pill">Semiautomático</span></td></tr>
+          <tr><td>Portales cerrados</td><td>LinkedIn, Indeed, Computrabajo, Glassdoor</td><td>Compartes la oferta desde el navegador o la app del portal; Rumbo la analiza y prepara todo</td><td><span class="pill warn">Asistido</span></td></tr>
+          <tr><td>Correo</td><td>Gmail</td><td>Lee (solo lectura) las respuestas de empresas y actualiza el estado</td><td><span class="pill">Automático</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>Sobre los filtros ATS: el objetivo es que la HV sea <em>legible por máquina</em> y use el vocabulario de la oferta. No existe una HV que pase cualquier filtro, y añadir experiencia falsa se descubre en la entrevista técnica.</p>
+    </section>
+
+    <section id="arquitectura">
+      <h2>Arquitectura</h2>
+      <p>Tres capas: app Flutter, backend en Supabase y servicios externos. El móvil nunca llama directamente a la IA ni a los portales. Todo pasa por funciones del servidor, que también trabajan con el teléfono apagado.</p>
+      <div class="diagram"><pre class="mermaid">
+flowchart LR
+  subgraph APP["App Flutter · iOS + Android"]
+    UI[Pantallas] --> ST[Estado Riverpod]
+    ST --> REP[Repositorios]
+    REP --> LC[(Caché local)]
+  end
+  REP -->|supabase_flutter| API
+  subgraph SB["Supabase"]
+    API[Auth + API REST + RLS] --> DB[(Postgres)]
+    EF[Edge Functions] --> DB
+    CRON[pg_cron] -->|cada 4 h| EF
+    STG[(Storage · PDFs)]
+    EF --> STG
+  end
+  EF --> CL[Claude API]
+  EF --> SRC[Fuentes de empleo]
+  EF --> GM[Gmail API]
+  EF --> FCM[Firebase Cloud Messaging]
+  FCM -.push.-> APP
+      </pre></div>
+      <h3>Arquitectura de la app</h3>
+      <p>Organización <strong>por funcionalidad</strong> con capas limpias dentro de cada una:</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Capa</th><th>Contenido</th><th>Depende de</th></tr></thead>
+        <tbody>
+          <tr><td>presentation</td><td>Pantallas, widgets, controladores Riverpod</td><td>domain</td></tr>
+          <tr><td>domain</td><td>Entidades (freezed), casos de uso, contratos de repositorio</td><td>nada</td></tr>
+          <tr><td>data</td><td>DTOs, fuentes remotas (Supabase) y locales (Drift), implementación de repositorios</td><td>domain</td></tr>
+        </tbody>
+      </table></div>
+      <div class="diagram"><pre class="mermaid">
+flowchart TB
+  A["lib/"] --> C["core/ · tema, router, errores, red, l10n"]
+  A --> F["features/"]
+  F --> F1[auth]
+  F --> F2[perfil]
+  F --> F3[hoja_de_vida]
+  F --> F4[ofertas]
+  F --> F5[postulaciones]
+  F --> F6[entrevistas]
+  F --> F7[estadisticas]
+  F --> F8[ajustes]
+  A --> S["shared/ · widgets comunes"]
+      </pre></div>
+    </section>
+
+    <section id="stack">
+      <h2>Stack técnico</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Área</th><th>Elección</th><th>Por qué</th></tr></thead>
+        <tbody>
+          <tr><td>Framework</td><td>Flutter estable + Dart 3</td><td>Un código para iOS y Android</td></tr>
+          <tr><td>Estado</td><td><code>flutter_riverpod</code> + <code>riverpod_generator</code></td><td>Testeable, sin <code>BuildContext</code>, buen manejo asíncrono</td></tr>
+          <tr><td>Navegación</td><td><code>go_router</code></td><td>Deep links, rutas tipadas, shell con barra inferior</td></tr>
+          <tr><td>Modelos</td><td><code>freezed</code> + <code>json_serializable</code></td><td>Inmutabilidad y serialización generada</td></tr>
+          <tr><td>Backend</td><td>Supabase (Postgres, Auth, Storage, Edge Functions, pg_cron)</td><td>SQL real, seguridad por fila, plan gratuito suficiente para uso personal</td></tr>
+          <tr><td>Caché local</td><td><code>drift</code> (SQLite)</td><td>Consultar ofertas y postulaciones sin conexión</td></tr>
+          <tr><td>IA</td><td>Claude API desde Edge Functions</td><td>Salida JSON estructurada, contexto largo para HV + oferta</td></tr>
+          <tr><td>Push</td><td><code>firebase_messaging</code> (FCM → APNs en iOS)</td><td>Un solo canal para ambas plataformas</td></tr>
+          <tr><td>PDF</td><td><code>pdf</code> + <code>printing</code></td><td>HV en una columna con texto real, legible por ATS</td></tr>
+          <tr><td>Compartir</td><td><code>receive_sharing_intent</code></td><td>Recibir enlaces de ofertas desde el navegador o las apps de los portales</td></tr>
+          <tr><td>Secretos locales</td><td><code>flutter_secure_storage</code></td><td>Keychain en iOS, Keystore en Android</td></tr>
+          <tr><td>Errores</td><td>Sentry o Firebase Crashlytics</td><td>Fallos en producción de ambas plataformas</td></tr>
+          <tr><td>Idiomas</td><td><code>flutter_localizations</code> + ARB</td><td>Español primero, inglés preparado (muchas ofertas remotas son en inglés)</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="modulos">
+      <h2>Módulos</h2>
+      <div class="grid">
+        <div class="card"><span class="label">Perfil</span><h4>Tu información verificada</h4><ul><li>Importar HV en PDF y convertirla en datos</li><li>Experiencia, proyectos, habilidades, estudios</li><li>GitHub y apps publicadas como evidencia</li></ul></div>
+        <div class="card"><span class="label">Hoja de vida</span><h4>HV base y versiones</h4><ul><li>Análisis ATS con puntuación</li><li>Versión adaptada por oferta, con cambios visibles</li><li>Exportar PDF y DOCX</li></ul></div>
+        <div class="card"><span class="label">Ofertas</span><h4>Búsqueda y compatibilidad</h4><ul><li>Feed con puntuación 0–100 y motivo</li><li>Filtros: remoto, salario, zona horaria, idioma</li><li>Duplicados unidos, ofertas sospechosas marcadas</li></ul></div>
+        <div class="card"><span class="label">Postulación</span><h4>Preparar y confirmar</h4><ul><li>HV adaptada + carta + respuestas</li><li>Envío directo cuando el portal lo permite</li><li>Si no, copiar y abrir la oferta</li></ul></div>
+        <div class="card"><span class="label">Seguimiento</span><h4>Kanban y calendario</h4><ul><li>Estados detectados desde Gmail</li><li>Recordatorios de seguimiento</li><li>Contactos y notas por proceso</li></ul></div>
+        <div class="card"><span class="label">Entrevistas</span><h4>Preparación</h4><ul><li>Ficha de la empresa</li><li>Simulador de entrevista con IA</li><li>Banco de respuestas reutilizable</li></ul></div>
+        <div class="card"><span class="label">Estadísticas</span><h4>Qué funciona</h4><ul><li>Embudo de conversión</li><li>Rendimiento por versión de HV y portal</li><li>Habilidades más pedidas que te faltan</li></ul></div>
+        <div class="card"><span class="label">Ofertas finales</span><h4>Decidir y negociar</h4><ul><li>Comparador salario + beneficios</li><li>Conversión de moneda</li><li>Borrador de contraoferta</li></ul></div>
+      </div>
+    </section>
+
+    <section id="pantallas">
+      <h2>Pantallas y navegación</h2>
+      <p>Barra inferior con cinco pestañas: <strong>Inicio · Ofertas · Postulaciones · HV · Más</strong>. Cada pestaña conserva su propia pila de navegación (<code>StatefulShellRoute</code> de go_router).</p>
+      <div class="phones">
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Ofertas</span></div>
+          <div class="ttl">Para ti hoy · 12</div>
+          <div class="job"><div><b>Senior Flutter Developer</b></div><div class="score">92</div><div class="co">Fintech · Remoto LATAM · USD 4–5,5k</div><div class="tags"><span class="pill">Riverpod</span><span class="pill">CI/CD</span></div></div>
+          <div class="job"><div><b>Mobile Engineer (Flutter)</b></div><div class="score">81</div><div class="co">Healthtech · Híbrido Bogotá</div><div class="tags"><span class="pill">BLoC</span><span class="pill warn">falta: Kotlin</span></div></div>
+          <div class="job"><div><b>Flutter Dev · Contrato</b></div><div class="score mid">64</div><div class="co">Agencia · Remoto · 6 meses</div><div class="tags"><span class="pill warn">salario no indicado</span></div></div>
+        </div>
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Preparar postulación</span></div>
+          <div class="ttl">HV adaptada</div>
+          <span class="label">Puntuación ATS</span>
+          <div class="meter"><i style="width:88%"></i></div>
+          <div class="mono" style="font-size:11px;color:var(--muted);margin:-6px 0 10px">62 → 88 · 7 palabras clave añadidas</div>
+          <div class="diff"><div class="del">Desarrollé apps móviles</div><div class="add">Desarrollé 4 apps Flutter en producción con Riverpod y CI/CD (Codemagic)</div></div>
+          <div class="diff"><div class="add">+ Testing: unit, widget y golden tests</div><div class="mono" style="color:var(--muted)">fuente: Proyecto «App Salud»</div></div>
+          <div class="btn">Revisar carta y confirmar</div>
+        </div>
+        <div class="phone">
+          <div class="bar"><span>9:41</span><span>Postulaciones</span></div>
+          <div class="ttl">Tus procesos · 9</div>
+          <div class="kan">
+            <div class="col"><div class="h"><span>Postulado</span><span>4</span></div><div class="it">Fintech · hace 3 días</div><div class="it">Agencia · hace 8 días · <span class="pill warn">seguir</span></div></div>
+            <div class="col"><div class="h"><span>Prueba técnica</span><span>1</span></div><div class="it">Healthtech · entrega vie</div></div>
+            <div class="col"><div class="h"><span>Entrevista</span><span>2</span></div><div class="it">Edtech · mañana 10:00</div></div>
+          </div>
+        </div>
+      </div>
+      <p class="mono" style="color:var(--muted)">Bocetos de baja fidelidad con datos de ejemplo.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Pantalla</th><th>Propósito</th><th>Fase</th></tr></thead>
+        <tbody>
+          <tr><td>Bienvenida / acceso</td><td>Inicio de sesión (correo con enlace mágico, Apple, Google)</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Onboarding</td><td>Subir HV en PDF, revisar datos extraídos, definir preferencias</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Inicio</td><td>Resumen del día: ofertas nuevas, seguimientos, próximas entrevistas</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Perfil</td><td>Editar experiencia, proyectos, habilidades</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>HV · análisis</td><td>Puntuación ATS, problemas y sugerencias</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Añadir oferta</td><td>Pegar o compartir enlace o texto; la IA extrae los datos</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Detalle de oferta</td><td>Compatibilidad, requisitos cumplidos y faltantes</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Preparar postulación</td><td>Cambios en la HV, carta, respuestas, confirmar</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Postulaciones</td><td>Kanban por estado + vista lista</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Detalle de postulación</td><td>Historial, contactos, notas, documentos enviados</td><td><span class="pill">MVP</span></td></tr>
+          <tr><td>Feed de ofertas</td><td>Ofertas de fuentes automáticas con filtros</td><td><span class="pill warn">Fase 2</span></td></tr>
+          <tr><td>Preferencias de búsqueda</td><td>Cargos, tecnologías, salario, modalidad, fuentes activas</td><td><span class="pill warn">Fase 2</span></td></tr>
+          <tr><td>Conexiones</td><td>Gmail, GitHub, calendario</td><td><span class="pill warn">Fase 3</span></td></tr>
+          <tr><td>Estadísticas</td><td>Embudo, rendimiento, brechas</td><td><span class="pill warn">Fase 3</span></td></tr>
+          <tr><td>Simulador de entrevista</td><td>Chat o voz con retroalimentación</td><td><span class="pill warn">Fase 4</span></td></tr>
+          <tr><td>Comparador de ofertas</td><td>Ofertas finales lado a lado</td><td><span class="pill warn">Fase 4</span></td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="datos">
+      <h2>Modelo de datos</h2>
+      <p>Postgres en Supabase. Todas las tablas llevan <code>user_id</code> con seguridad por fila (RLS), así que añadir usuarios más adelante no cambia el esquema.</p>
+      <div class="diagram"><pre class="mermaid">
+erDiagram
+  PERFIL ||--o{ EXPERIENCIA : tiene
+  PERFIL ||--o{ PROYECTO : tiene
+  PERFIL ||--o{ HABILIDAD : tiene
+  PERFIL ||--|| PREFERENCIAS : define
+  PERFIL ||--o{ VERSION_HV : genera
+  EMPRESA ||--o{ OFERTA : publica
+  OFERTA ||--o{ COMPATIBILIDAD : evaluada_en
+  OFERTA ||--o| POSTULACION : origina
+  VERSION_HV ||--o{ POSTULACION : enviada_en
+  POSTULACION ||--o{ EVENTO : historial
+  POSTULACION ||--o{ ENTREVISTA : agenda
+  POSTULACION }o--o{ CONTACTO : involucra
+  PERFIL ||--o{ RESPUESTA_BANCO : guarda
+      </pre></div>
+      <div class="tbl"><table>
+        <thead><tr><th>Tabla</th><th>Campos clave</th></tr></thead>
+        <tbody>
+          <tr><td>perfiles</td><td>nombre, titular, resumen, ubicación, zona horaria, idiomas, links</td></tr>
+          <tr><td>experiencias / proyectos</td><td>empresa, cargo, fechas, logros[] (con métricas), tecnologías[]</td></tr>
+          <tr><td>habilidades</td><td>nombre, categoría, nivel, años, evidencia</td></tr>
+          <tr><td>preferencias</td><td>cargos[], tecnologías[], salario_min, moneda, modalidades[], países[], fuentes_activas[]</td></tr>
+          <tr><td>versiones_hv</td><td>oferta_id (nulo = base), contenido JSON, pdf_path, puntuación_ats, cambios[]</td></tr>
+          <tr><td>ofertas</td><td>fuente, url, hash_dedupe, título, empresa_id, descripción, requisitos[], salario, modalidad, publicada_en, señales_calidad</td></tr>
+          <tr><td>compatibilidades</td><td>oferta_id, puntuación, cumplidos[], faltantes[], explicación, modelo, versión_prompt</td></tr>
+          <tr><td>postulaciones</td><td>oferta_id, versión_hv_id, estado, canal (directo / asistido), postulada_en, próximo_seguimiento</td></tr>
+          <tr><td>eventos</td><td>postulación_id, tipo, de_estado, a_estado, origen (manual / gmail / sistema), fecha</td></tr>
+          <tr><td>entrevistas</td><td>postulación_id, tipo, fecha, notas, preguntas[], resultado</td></tr>
+          <tr><td>llamadas_ia</td><td>función, modelo, tokens_entrada, tokens_salida, costo_estimado, duración</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Estados de una postulación</h3>
+      <div class="diagram"><pre class="mermaid">
+stateDiagram-v2
+  direction LR
+  state "En revisión" as Revision
+  state "Prueba técnica" as Prueba
+  state "Sin respuesta" as Silencio
+  [*] --> Guardada
+  Guardada --> Preparando
+  Preparando --> Postulada : confirmas
+  Postulada --> Revision
+  Postulada --> Silencio : 21 días
+  Revision --> Prueba
+  Revision --> Entrevista
+  Prueba --> Entrevista
+  Entrevista --> Oferta
+  Oferta --> Aceptada
+  Oferta --> Declinada
+  Postulada --> Rechazada
+  Revision --> Rechazada
+  Prueba --> Rechazada
+  Entrevista --> Rechazada
+      </pre></div>
+    </section>
+
+    <section id="ia">
+      <h2>Flujos de IA</h2>
+      <p>Cada flujo es una Edge Function con un prompt versionado y salida JSON validada con un esquema. Si la salida no cumple el esquema, se reintenta una vez y si vuelve a fallar se marca como error.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Flujo</th><th>Entrada → salida</th><th>Modelo</th><th>Cuándo</th></tr></thead>
+        <tbody>
+          <tr><td>Importar HV</td><td>Texto del PDF → perfil estructurado</td><td>Sonnet</td><td>Una vez, en onboarding</td></tr>
+          <tr><td>Extraer oferta</td><td>URL o texto → oferta estructurada</td><td>Haiku</td><td>Al añadir o descargar</td></tr>
+          <tr><td>Compatibilidad</td><td>Perfil + oferta → puntuación, cumplidos, faltantes</td><td>Haiku</td><td>Cada oferta nueva</td></tr>
+          <tr><td>Análisis ATS</td><td>HV + oferta opcional → puntuación y problemas</td><td>Sonnet</td><td>Bajo demanda</td></tr>
+          <tr><td>Adaptar HV</td><td>Perfil + oferta → HV + lista de cambios con su fuente</td><td>Sonnet</td><td>Al preparar postulación</td></tr>
+          <tr><td>Carta y respuestas</td><td>Perfil + oferta + empresa → textos</td><td>Sonnet</td><td>Al preparar postulación</td></tr>
+          <tr><td>Clasificar correo</td><td>Correo → empresa, estado, fecha de entrevista</td><td>Haiku</td><td>Cada correo nuevo</td></tr>
+          <tr><td>Simulador</td><td>Oferta + historial → pregunta / evaluación</td><td>Sonnet u Opus</td><td>Sesiones de práctica</td></tr>
+        </tbody>
+      </table></div>
+      <p class="mono" style="color:var(--muted)">IDs: <code>claude-haiku-4-5-20251001</code>, <code>claude-sonnet-5-5</code>, <code>claude-opus-5-5</code>. Configurables por flujo sin publicar una versión nueva de la app.</p>
+      <div class="callout good">
+        <p><strong>Protección contra datos inventados.</strong> Al adaptar la HV, cada frase que devuelve el modelo incluye el <code>id</code> del elemento del perfil que la respalda. Un validador en el servidor rechaza cualquier frase sin fuente, o con tecnologías, cifras o fechas que no estén en tu perfil. En la app ves cada cambio con su fuente antes de confirmar.</p>
+      </div>
+      <h3>Control de costos</h3>
+      <ul>
+        <li>Compatibilidad con Haiku sobre un resumen corto del perfil, guardado en caché de prompt.</li>
+        <li>La HV se adapta solo cuando tú pulsas «Preparar», nunca para todas las ofertas.</li>
+        <li>Tope de gasto mensual configurable; al llegar al tope se pausan las tareas automáticas.</li>
+      </ul>
+    </section>
+
+    <section id="fuentes">
+      <h2>Fuentes de empleo</h2>
+      <p>Cada fuente implementa el mismo contrato (<code>buscar(preferencias) → OfertaCruda[]</code>) para añadir nuevas sin tocar el resto. El servidor normaliza, elimina duplicados por <code>hash(empresa + título + ubicación)</code> y evalúa la compatibilidad.</p>
+      <div class="tbl"><table>
+        <thead><tr><th>Fuente</th><th>Cobertura</th><th>Acceso</th><th>Envío</th></tr></thead>
+        <tbody>
+          <tr><td>Get on Board</td><td>Tecnología, LATAM</td><td>API pública</td><td><span class="pill warn">Asistido</span></td></tr>
+          <tr><td>Adzuna</td><td>Muchos países</td><td>API con clave gratuita</td><td><span class="pill warn">Asistido</span></td></tr>
+          <tr><td>Jooble</td><td>Agregador global, incluye LATAM</td><td>API con clave gratuita</td><td><span class="pill warn">Asistido</span></td></tr>
+          <tr><td>Remotive, RemoteOK, Himalayas</td><td>Remoto global</td><td>API / JSON público</td><td><span class="pill warn">Asistido</span></td></tr>
+          <tr><td>Greenhouse, Lever, Ashby</td><td>Startups y empresas tech</td><td>Tableros públicos por empresa</td><td><span class="pill">Directo con confirmación</span></td></tr>
+          <tr><td>LinkedIn, Indeed, Computrabajo</td><td>General</td><td>Solo compartir enlace desde el móvil</td><td><span class="pill warn">Asistido</span></td></tr>
+        </tbody>
+      </table></div>
+      <p>Hay que confirmar los términos de uso de cada API en el levantamiento de requerimientos. Algunas exigen mostrar su marca o enlazar la oferta original.</p>
+    </section>
+
+    <section id="plataformas">
+      <h2>iOS y Android</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Tema</th><th>iOS</th><th>Android</th></tr></thead>
+        <tbody>
+          <tr><td>Versión mínima propuesta</td><td>iOS 15</td><td>Android 8 (API 26)</td></tr>
+          <tr><td>Recibir enlaces compartidos</td><td>Share Extension (target nativo extra + App Group)</td><td>Intent filter <code>ACTION_SEND</code> en el manifest</td></tr>
+          <tr><td>Push</td><td>APNs vía FCM; requiere cuenta Apple Developer y pedir permiso</td><td>FCM; permiso de notificaciones en Android 13+</td></tr>
+          <tr><td>Trabajo en segundo plano</td><td>Muy limitado, por eso todo lo pesado corre en el servidor</td><td>Igual criterio, para mantener paridad</td></tr>
+          <tr><td>Inicio de sesión</td><td>Si hay Google, Apple también es obligatorio en App Store</td><td>Google o correo</td></tr>
+          <tr><td>Deep links</td><td>Universal Links</td><td>App Links</td></tr>
+          <tr><td>Instalar en tu teléfono</td><td>Con cuenta gratis la app caduca a los 7 días; con la de pago, TestFlight</td><td>APK directo o prueba interna en Play</td></tr>
+          <tr><td>Archivos</td><td>Hoja de compartir para exportar PDF</td><td>Selector de archivos del sistema</td></tr>
+        </tbody>
+      </table></div>
+      <p>Interfaz con Material 3 y ajustes adaptativos donde cambia la costumbre de cada plataforma: gesto de volver en iOS, selectores de fecha, hojas modales y tipografía del sistema.</p>
+    </section>
+
+    <section id="seguridad">
+      <h2>Seguridad y privacidad</h2>
+      <ul>
+        <li>RLS en todas las tablas: cada fila solo es visible para su dueño.</li>
+        <li>Claves de Claude, fuentes y Google guardadas como secretos del servidor, nunca en el binario.</li>
+        <li>Tokens de Gmail cifrados en Supabase Vault; permiso <code>gmail.readonly</code> y solo correos que coincidan con empresas de tus postulaciones.</li>
+        <li>Sesión en Keychain / Keystore con <code>flutter_secure_storage</code>.</li>
+        <li>Exportar y borrar todos tus datos desde Ajustes.</li>
+        <li>Para uso personal, la app de Google queda en modo «prueba» con tu cuenta como usuario de prueba. Si se abre al público, Gmail exige una auditoría de seguridad.</li>
+      </ul>
+    </section>
+
+    <section id="calidad">
+      <h2>Calidad y CI/CD</h2>
+      <div class="grid">
+        <div class="card"><h4>Tests</h4><ul><li>Unit: casos de uso, validadores, normalización</li><li>Widget + golden en pantallas clave</li><li>Integración en emulador Android y simulador iOS</li><li>Tests de Edge Functions con respuestas grabadas de la IA</li></ul></div>
+        <div class="card"><h4>Pipeline</h4><ul><li>GitHub Actions: format, analyze, tests en cada PR</li><li>Build Android en Linux, iOS en macOS</li><li>Codemagic o Fastlane para TestFlight y Play interno</li></ul></div>
+        <div class="card"><h4>Entornos</h4><ul><li>Flavors <code>dev</code> y <code>prod</code> en ambas plataformas</li><li>Proyecto Supabase separado por entorno</li><li>Migraciones SQL versionadas en el repositorio</li></ul></div>
+      </div>
+    </section>
+
+    <section id="fases">
+      <h2>Fases</h2>
+      <div class="phase"><div class="tag">Fase<b>0</b></div><div><h4>Base del proyecto</h4><p>Proyecto Flutter con flavors, arquitectura, tema, router, localización, Supabase con migraciones, autenticación, CI y primera instalación en iPhone y Android.</p></div></div>
+      <div class="phase"><div class="tag">Fase<b>1 · MVP</b></div><div><h4>Perfil, HV y seguimiento manual</h4><p>Importar HV, editar perfil, análisis ATS, añadir ofertas compartiendo enlaces, compatibilidad, HV adaptada con cambios visibles, carta, exportar PDF y Kanban de postulaciones.</p></div></div>
+      <div class="phase"><div class="tag">Fase<b>2</b></div><div><h4>Búsqueda automática</h4><p>Conectores de fuentes, tarea programada, eliminación de duplicados, detección de ofertas de baja calidad, feed con filtros, alertas push y envío directo a Greenhouse y Lever.</p></div></div>
+      <div class="phase"><div class="tag">Fase<b>3</b></div><div><h4>Seguimiento inteligente</h4><p>Conexión con Gmail, estados automáticos, recordatorios, calendario de entrevistas, estadísticas y brechas de habilidades.</p></div></div>
+      <div class="phase"><div class="tag">Fase<b>4</b></div><div><h4>Entrevistas y cierre</h4><p>Fichas de empresa, simulador de entrevistas, banco de respuestas, comparador de ofertas y asistente de negociación.</p></div></div>
+    </section>
+
+    <section id="riesgos">
+      <h2>Riesgos</h2>
+      <div class="tbl"><table>
+        <thead><tr><th>Riesgo</th><th>Impacto</th><th>Mitigación</th></tr></thead>
+        <tbody>
+          <tr><td>Bloqueo de cuenta en portales cerrados</td><td><span class="pill risk">Alto</span></td><td>Modo asistido; ninguna automatización sobre LinkedIn o Indeed</td></tr>
+          <tr><td>La IA inventa datos en la HV</td><td><span class="pill risk">Alto</span></td><td>Frases con fuente obligatoria, validador en el servidor, revisión antes de enviar</td></tr>
+          <tr><td>Cambios o cierre de APIs de empleo</td><td><span class="pill warn">Medio</span></td><td>Contrato común por fuente; si una falla, las demás siguen</td></tr>
+          <tr><td>Costo de IA</td><td><span class="pill warn">Medio</span></td><td>Modelo por tarea, caché de prompt, tope mensual, registro de gasto</td></tr>
+          <tr><td>PDFs mal leídos al importar</td><td><span class="pill warn">Medio</span></td><td>Pantalla de revisión obligatoria tras la extracción</td></tr>
+          <tr><td>Diferencias entre iOS y Android</td><td><span class="pill warn">Medio</span></td><td>Pruebas en ambas plataformas dentro de la definición de terminado</td></tr>
+          <tr><td>Cuota o aprobación de Gmail</td><td><span class="pill">Bajo</span></td><td>Uso personal en modo prueba; auditoría solo si se publica</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section id="preguntas">
+      <h2>Preguntas abiertas</h2>
+      <p>Las resolvemos en el levantamiento de requerimientos:</p>
+      <ol class="q">
+        <li>¿En qué países o regiones buscas? ¿Solo remoto, o también presencial o híbrido y dónde?</li>
+        <li>¿Qué cargos y niveles te interesan (mid, senior, lead) y cuál es tu salario mínimo y moneda?</li>
+        <li>¿Tu HV está en español, inglés o ambos? ¿Necesitas versiones en los dos idiomas?</li>
+        <li>¿Tienes cuenta Apple Developer (pago) para instalar en iPhone sin que caduque y usar notificaciones?</li>
+        <li>¿Prefieres Supabase o ya usas Firebase y quieres quedarte ahí?</li>
+        <li>¿Cuánto quieres gastar al mes en IA como máximo?</li>
+        <li>¿Qué portales usas más hoy y cuál era el que llamaste «Magento»?</li>
+        <li>¿Gestión de estado: mantenemos Riverpod o prefieres BLoC por costumbre?</li>
+        <li>¿El nombre «Rumbo» te gusta o tienes otro en mente?</li>
+      </ol>
+    </section>
+  </main>
+</div>

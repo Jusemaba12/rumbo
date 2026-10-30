@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rumbo/features/profile/data/resume_importer.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
-import 'package:rumbo/features/profile/domain/profile_import.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/domain/services/profile_import.dart';
+import 'package:rumbo/features/profile/infrastructure/mappers/imported_profile_mapper.dart';
 
 void main() {
-  final acme = Experience(
+  final Experience acme = Experience(
     id: 'exp-1',
     company: 'Acme',
     role: 'Flutter Developer',
@@ -13,18 +13,18 @@ void main() {
 
   group('planProfileImport', () {
     test('rellena solo los campos vacíos y no toca lo escrito', () {
-      final plan = planProfileImport(
-        const ProfileData(
+      final ProfileImport plan = planProfileImport(
+        current: const ProfileData(
           profile: Profile(
             fullName: 'Juan',
-            links: {'github': 'https://github.com/yo'},
+            links: <String, String>{'github': 'https://github.com/yo'},
           ),
         ),
-        const ProfileData(
+        imported: const ProfileData(
           profile: Profile(
             fullName: 'Juan Manzano',
             headline: 'Desarrollador Flutter',
-            links: {
+            links: <String, String>{
               'github': 'https://github.com/otro',
               'linkedin': 'https://linkedin.com/in/yo',
             },
@@ -33,21 +33,24 @@ void main() {
       );
       expect(plan.profile.fullName, 'Juan');
       expect(plan.profile.headline, 'Desarrollador Flutter');
-      expect(plan.profile.links, {
+      expect(plan.profile.links, <String, String>{
         'github': 'https://github.com/yo',
         'linkedin': 'https://linkedin.com/in/yo',
       });
-      expect(plan.filledFields, {ProfileField.headline, ProfileField.links});
+      expect(plan.filledFields, <ProfileField>{
+        ProfileField.headline,
+        ProfileField.links,
+      });
     });
 
     test('añade solo experiencia, proyectos y habilidades nuevos', () {
-      final plan = planProfileImport(
-        ProfileData(
-          experiences: [acme],
-          skills: const [Skill(id: 's1', name: 'Flutter')],
+      final ProfileImport plan = planProfileImport(
+        current: ProfileData(
+          experiences: <Experience>[acme],
+          skills: const <Skill>[Skill(id: 's1', name: 'Flutter')],
         ),
-        ProfileData(
-          experiences: [
+        imported: ProfileData(
+          experiences: <Experience>[
             acme.copyWith(id: '', company: ' ACME ', role: 'flutter developer'),
             Experience(
               company: 'Beta',
@@ -55,34 +58,36 @@ void main() {
               startDate: DateTime(2020),
             ),
           ],
-          projects: const [
+          projects: const <Project>[
             Project(name: 'App Salud'),
             Project(name: 'app salud'),
           ],
-          skills: const [
+          skills: const <Skill>[
             Skill(name: 'flutter'),
             Skill(name: 'Dart'),
             Skill(name: ' '),
           ],
         ),
       );
-      expect(plan.experiences.map((e) => e.company), ['Beta']);
-      expect(plan.projects.map((p) => p.name), ['App Salud']);
-      expect(plan.skills.map((s) => s.name), ['Dart']);
+      expect(plan.experiences.map((Experience e) => e.company), <String>[
+        'Beta',
+      ]);
+      expect(plan.projects.map((Project p) => p.name), <String>['App Salud']);
+      expect(plan.skills.map((Skill s) => s.name), <String>['Dart']);
       expect(plan.isEmpty, isFalse);
     });
 
     test('rellena contacto y añade estudios nuevos', () {
-      final plan = planProfileImport(
-        const ProfileData(
+      final ProfileImport plan = planProfileImport(
+        current: const ProfileData(
           profile: Profile(email: 'yo@ejemplo.com'),
-          education: [
+          education: <Education>[
             Education(id: 'ed1', institution: 'UFPS', degree: 'Ingeniería'),
           ],
         ),
-        const ProfileData(
+        imported: const ProfileData(
           profile: Profile(email: 'otro@ejemplo.com', phone: '+57 300'),
-          education: [
+          education: <Education>[
             Education(institution: 'ufps', degree: 'ingeniería'),
             Education(institution: 'Platzi', degree: 'Flutter'),
           ],
@@ -90,67 +95,71 @@ void main() {
       );
       expect(plan.profile.email, 'yo@ejemplo.com');
       expect(plan.profile.phone, '+57 300');
-      expect(plan.filledFields, {ProfileField.phone});
-      expect(plan.education.map((e) => e.institution), ['Platzi']);
+      expect(plan.filledFields, <ProfileField>{ProfileField.phone});
+      expect(plan.education.map((Education e) => e.institution), <String>[
+        'Platzi',
+      ]);
     });
 
     test('si no hay nada nuevo el plan está vacío', () {
-      final data = ProfileData(
+      final ProfileData data = ProfileData(
         profile: const Profile(fullName: 'Juan'),
-        experiences: [acme],
+        experiences: <Experience>[acme],
       );
-      expect(planProfileImport(data, data).isEmpty, isTrue);
+      expect(planProfileImport(current: data, imported: data).isEmpty, isTrue);
     });
   });
 
   test('convierte la respuesta de import-resume', () {
-    final data = importedProfileFromJson({
-      'profile': {
+    final ProfileData data = importedProfileFromJson(<String, dynamic>{
+      'profile': <String, Object>{
         'full_name': 'Juan Manzano',
         'headline': 'Desarrollador Flutter',
         'summary': '',
         'location': 'Bogotá',
-        'links': {
+        'links': <String, String>{
           'linkedin': '',
           'github': 'https://github.com/yo',
           'portfolio': '',
         },
       },
-      'experiences': [
-        {
+      'experiences': <Map<String, Object?>>[
+        <String, Object>{
           'company': 'Beta',
           'role': 'Mobile Dev',
           'start_date': '2020-01-01',
           'end_date': '2021-06-01',
-          'achievements': ['Publiqué 3 apps'],
-          'technologies': ['Flutter'],
+          'achievements': <String>['Publiqué 3 apps'],
+          'technologies': <String>['Flutter'],
         },
-        {
+        <String, Object?>{
           'company': 'Acme',
           'role': 'Flutter Developer',
           'start_date': '2021-07-01',
           'end_date': null,
-          'achievements': [],
-          'technologies': [],
+          'achievements': <dynamic>[],
+          'technologies': <dynamic>[],
         },
       ],
-      'projects': [
-        {
+      'projects': <Map<String, Object?>>[
+        <String, Object?>{
           'name': 'App Salud',
           'description': '',
           'url': null,
-          'technologies': [],
+          'technologies': <dynamic>[],
         },
       ],
-      'skills': [
-        {'name': 'Dart', 'category': 'language', 'years': 4},
+      'skills': <Map<String, Object>>[
+        <String, Object>{'name': 'Dart', 'category': 'language', 'years': 4},
       ],
     });
-    expect(data.profile.links, {'github': 'https://github.com/yo'});
+    expect(data.profile.links, <String, String>{
+      'github': 'https://github.com/yo',
+    });
     expect(data.experiences.first.company, 'Acme');
     expect(data.experiences.last.endDate, DateTime(2021, 6));
     expect(data.projects.single.url, isNull);
     expect(data.skills.single.category, SkillCategory.language);
-    expect(data.experiences.every((e) => e.id.isEmpty), isTrue);
+    expect(data.experiences.every((Experience e) => e.id.isEmpty), isTrue);
   });
 }

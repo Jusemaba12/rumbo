@@ -1,56 +1,71 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/applications/presentation/application_detail_screen.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/email/data/email_drafter.dart';
-import 'package:rumbo/features/email/presentation/email_draft_screen.dart';
-import 'package:rumbo/features/email/presentation/gmail_connect_screen.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/applications/presentation/screens/application_detail_screen.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/email/domain/entities/email_draft.dart';
+import 'package:rumbo/features/email/domain/repositories/email_drafter.dart';
+import 'package:rumbo/features/email/domain/services/mailto.dart';
+import 'package:rumbo/features/email/infrastructure/di/email_providers.dart';
+import 'package:rumbo/features/email/infrastructure/services/mail_services.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeDrafter implements EmailDrafter {
-  final kinds = <EmailDraftKind>[];
+  final List<EmailDraftKind> kinds = <EmailDraftKind>[];
 
   @override
-  Future<EmailDraft> draft(
-    String applicationId,
-    EmailDraftKind kind, {
+  Future<Result<EmailDraft>> draft({
+    required String applicationId,
+    required EmailDraftKind kind,
     String notes = '',
   }) async {
     kinds.add(kind);
-    return EmailDraft(
-      subject: 'Seguimiento: Flutter Developer',
-      body: 'Hola Ana,\n\nQuería saber cómo va el proceso.\n\nJuan',
-      to: kinds.length == 1 ? 'ana@fintech.com' : 'otra@fintech.com',
+    return Ok<EmailDraft>(
+      EmailDraft(
+        subject: 'Seguimiento: Flutter Developer',
+        body: 'Hola Ana,\n\nQuería saber cómo va el proceso.\n\nJuan',
+        to: kinds.length == 1 ? 'ana@fintech.com' : 'otra@fintech.com',
+      ),
     );
   }
 
   @override
-  Future<EmailDraft> draftApplication(String jobId, {String notes = ''}) =>
-      throw UnimplementedError();
+  Future<Result<EmailDraft>> draftApplication(
+    String jobId, {
+    String notes = '',
+  }) => throw UnimplementedError();
 }
 
 void main() {
   test('cada estado ofrece los correos que tienen sentido', () {
     expect(emailKindsFor(ApplicationStatus.saved), isEmpty);
-    expect(emailKindsFor(ApplicationStatus.applied), [EmailDraftKind.followUp]);
-    expect(emailKindsFor(ApplicationStatus.interview), [
+    expect(emailKindsFor(ApplicationStatus.applied), <EmailDraftKind>[
+      EmailDraftKind.followUp,
+    ]);
+    expect(emailKindsFor(ApplicationStatus.interview), <EmailDraftKind>[
       EmailDraftKind.followUp,
       EmailDraftKind.thankYou,
     ]);
-    expect(emailKindsFor(ApplicationStatus.offer), [EmailDraftKind.thankYou]);
-    expect(emailKindsFor(ApplicationStatus.rejected), [
+    expect(emailKindsFor(ApplicationStatus.offer), <EmailDraftKind>[
+      EmailDraftKind.thankYou,
+    ]);
+    expect(emailKindsFor(ApplicationStatus.rejected), <EmailDraftKind>[
       EmailDraftKind.rejectionReply,
     ]);
   });
 
   test('el enlace mailto codifica asunto y cuerpo sin «+»', () {
-    final uri = mailtoUri(
+    final Uri uri = mailtoUri(
       to: 'ana@acme.com',
       subject: 'Hola equipo',
       body: 'Línea 1\nLínea 2',
@@ -66,19 +81,20 @@ void main() {
   });
 
   testWidgets('redacta un seguimiento, se copia y se abre en el correo', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final jobs = InMemoryJobsRepository();
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
     await jobs.save(
       const SavedJob(
         job: Job(title: 'Flutter Developer', company: 'Fintech'),
       ),
     );
-    final jobId = (await jobs.list()).single.job.id;
-    final applications = InMemoryApplicationsRepository(jobs);
+    final String jobId = (await jobs.list()).getOrThrow().single.job.id;
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs);
     await applications.save(
       Application(
         jobId: jobId,
@@ -86,21 +102,21 @@ void main() {
         appliedAt: DateTime(2026, 10, 10),
       ),
     );
-    final drafter = _FakeDrafter();
+    final _FakeDrafter drafter = _FakeDrafter();
     String? copied;
     Uri? opened;
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),
           emailDrafterProvider.overrideWithValue(drafter),
-          clipboardWriterProvider.overrideWithValue((text) async {
+          clipboardWriterProvider.overrideWithValue((String text) async {
             copied = text;
           }),
-          mailLauncherProvider.overrideWithValue((uri) async {
+          mailLauncherProvider.overrideWithValue((Uri uri) async {
             opened = uri;
             return true;
           }),
@@ -114,7 +130,7 @@ void main() {
     await tester.tap(find.text('Flutter Developer'));
     await tester.pumpAndSettle();
 
-    final follow = find.byKey(const Key('email-followUp'));
+    final Finder follow = find.byKey(const Key('email-followUp'));
     await tester.scrollUntilVisible(
       follow,
       300,
@@ -124,7 +140,7 @@ void main() {
     await tester.tap(follow);
     await tester.pumpAndSettle();
 
-    expect(drafter.kinds, [EmailDraftKind.followUp]);
+    expect(drafter.kinds, <EmailDraftKind>[EmailDraftKind.followUp]);
     expect(find.text('ana@fintech.com'), findsOneWidget);
     expect(find.text('Seguimiento: Flutter Developer'), findsOneWidget);
 

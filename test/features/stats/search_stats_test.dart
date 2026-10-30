@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/stats/domain/search_stats.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/stats/domain/services/search_stats.dart';
 
 ApplicationWithJob _app(
   String id,
@@ -28,11 +28,11 @@ SavedJob _job(List<String> missing, {bool dismissed = false}) => SavedJob(
 );
 
 void main() {
-  final day1 = DateTime(2026, 10, 1);
+  final DateTime day1 = DateTime(2026, 10, 1);
 
   test('el embudo cuenta etapas alcanzadas aunque luego rechacen', () {
-    final stats = computeStats(
-      applications: [
+    final SearchStats stats = computeStats(
+      applications: <ApplicationWithJob>[
         _app('a', ApplicationStatus.saved),
         _app('b', ApplicationStatus.preparing),
         _app('c', ApplicationStatus.applied, appliedAt: day1),
@@ -44,8 +44,8 @@ void main() {
           source: 'getonboard',
         ),
       ],
-      events: {
-        'd': [
+      events: <String, List<ApplicationEvent>>{
+        'd': <ApplicationEvent>[
           _event(ApplicationStatus.applied, day1),
           _event(
             ApplicationStatus.interview,
@@ -53,15 +53,15 @@ void main() {
           ),
           _event(ApplicationStatus.rejected, day1.add(const Duration(days: 9))),
         ],
-        'e': [
+        'e': <ApplicationEvent>[
           _event(ApplicationStatus.applied, day1),
           _event(ApplicationStatus.inReview, day1.add(const Duration(days: 2))),
           _event(ApplicationStatus.offer, day1.add(const Duration(days: 20))),
         ],
       },
-      jobs: const [],
+      jobs: const <SavedJob>[],
     );
-    final funnel = stats.funnel;
+    final Funnel funnel = stats.funnel;
     expect(funnel.saved, 5);
     expect(funnel.applied, 3);
     expect(funnel.responded, 2);
@@ -73,16 +73,18 @@ void main() {
     expect(stats.bySource.first.source, 'manual');
     expect(stats.bySource.first.applied, 2);
     expect(
-      stats.bySource.firstWhere((s) => s.source == 'getonboard').responded,
+      stats.bySource
+          .firstWhere((SourceStats s) => s.source == 'getonboard')
+          .responded,
       1,
     );
   });
 
   test('sin postulaciones no hay tasas ni tiempos', () {
-    final stats = computeStats(
-      applications: [_app('a', ApplicationStatus.saved)],
-      events: const {},
-      jobs: const [],
+    final SearchStats stats = computeStats(
+      applications: <ApplicationWithJob>[_app('a', ApplicationStatus.saved)],
+      events: const <String, List<ApplicationEvent>>{},
+      jobs: const <SavedJob>[],
     );
     expect(stats.funnel.responseRate, isNull);
     expect(stats.averageResponseDays, isNull);
@@ -90,18 +92,18 @@ void main() {
   });
 
   test('las brechas agrupan variantes y cuentan una vez por oferta', () {
-    final stats = computeStats(
-      applications: const [],
-      events: const {},
-      jobs: [
-        _job(['Kotlin', 'Inglés avanzado', 'kotlin.']),
-        _job(['Kotlin: apps nativas', 'Swift']),
-        _job(['Inglés avanzado (B2)', 'Firebase']),
-        _job(['Kotlin'], dismissed: true),
+    final SearchStats stats = computeStats(
+      applications: const <ApplicationWithJob>[],
+      events: const <String, List<ApplicationEvent>>{},
+      jobs: <SavedJob>[
+        _job(<String>['Kotlin', 'Inglés avanzado', 'kotlin.']),
+        _job(<String>['Kotlin: apps nativas', 'Swift']),
+        _job(<String>['Inglés avanzado (B2)', 'Firebase']),
+        _job(<String>['Kotlin'], dismissed: true),
       ],
     );
     expect(stats.analyzedJobs, 3);
-    expect(stats.gaps.map((g) => (g.label, g.count)), [
+    expect(stats.gaps.map((SkillGap g) => (g.label, g.count)), <(String, int)>[
       ('Kotlin', 2),
       ('Inglés avanzado', 2),
     ]);

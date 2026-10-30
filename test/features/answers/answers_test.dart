@@ -1,22 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/answers/data/answers_repository.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
+import 'package:rumbo/features/answers/domain/entities/saved_answer.dart';
+import 'package:rumbo/features/answers/infrastructure/di/answers_providers.dart';
+import 'package:rumbo/features/answers/infrastructure/repositories/in_memory_answers_repository.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
 
 void main() {
   testWidgets('crea una respuesta desde una pregunta habitual y la edita', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final answers = InMemoryAnswersRepository();
+    final InMemoryAnswersRepository answers = InMemoryAnswersRepository();
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           answersRepositoryProvider.overrideWithValue(answers),
         ],
@@ -39,7 +43,7 @@ void main() {
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
-    final saved = (await answers.list()).single;
+    final SavedAnswer saved = (await answers.list()).getOrThrow().single;
     expect(saved.question, 'Háblame de ti');
     // La pregunta ya respondida deja de sugerirse.
     expect(find.widgetWithText(ActionChip, 'Háblame de ti'), findsNothing);
@@ -54,6 +58,6 @@ void main() {
     await tester.enterText(find.byKey(const Key('answerText')), 'Versión 2');
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
-    expect((await answers.list()).single.answer, 'Versión 2');
+    expect((await answers.list()).getOrThrow().single.answer, 'Versión 2');
   });
 }

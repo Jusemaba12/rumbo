@@ -1,83 +1,91 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/practice/data/interview_coach.dart';
-import 'package:rumbo/features/practice/domain/practice.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/practice/domain/entities/practice.dart';
+import 'package:rumbo/features/practice/domain/repositories/interview_coach.dart';
+import 'package:rumbo/features/practice/infrastructure/di/practice_providers.dart';
+import 'package:rumbo/features/practice/infrastructure/mappers/coach_reply_mapper.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeCoach implements InterviewCoach {
-  final calls = <List<PracticeTurn>>[];
+  final List<List<PracticeTurn>> calls = <List<PracticeTurn>>[];
   PracticeMode? mode;
   int? total;
 
   @override
-  Future<CoachReply> next({
+  Future<Result<CoachReply>> next({
     required String jobId,
     required PracticeMode mode,
     required PracticeLanguage language,
     required int totalQuestions,
     required List<PracticeTurn> turns,
   }) async {
-    calls.add([...turns]);
+    calls.add(<PracticeTurn>[...turns]);
     this.mode = mode;
     total = totalQuestions;
-    final answered = turns.length;
-    return CoachReply(
-      feedback: answered == 0
-          ? null
-          : AnswerFeedback(
-              score: 4,
-              strengths: ['Mencionas Riverpod'],
-              improve: ['Añade una cifra'],
-              betterAnswer: 'Respuesta mejorada $answered',
-            ),
-      nextQuestion: answered < totalQuestions
-          ? 'Pregunta ${answered + 1}'
-          : null,
-      summary: answered < totalQuestions
-          ? null
-          : const PracticeSummary(score: 4, overall: 'Buen nivel técnico.'),
+    final int answered = turns.length;
+    return Ok<CoachReply>(
+      CoachReply(
+        feedback: answered == 0
+            ? null
+            : AnswerFeedback(
+                score: 4,
+                strengths: <String>['Mencionas Riverpod'],
+                improve: <String>['Añade una cifra'],
+                betterAnswer: 'Respuesta mejorada $answered',
+              ),
+        nextQuestion: answered < totalQuestions
+            ? 'Pregunta ${answered + 1}'
+            : null,
+        summary: answered < totalQuestions
+            ? null
+            : const PracticeSummary(score: 4, overall: 'Buen nivel técnico.'),
+      ),
     );
   }
 }
 
 void main() {
   test('convierte la respuesta del entrevistador', () {
-    final reply = coachReplyFromJson({
-      'feedback': {
+    final CoachReply reply = coachReplyFromJson(<String, dynamic>{
+      'feedback': <String, Object>{
         'score': 3,
-        'strengths': ['Claro'],
-        'improve': ['Usa STAR', 7],
+        'strengths': <String>['Claro'],
+        'improve': <Object>['Usa STAR', 7],
         'better_answer': 'En GSE…',
       },
       'next_question': '¿Cómo pruebas tus widgets?',
       'summary': null,
     });
-    expect(reply.feedback!.improve, ['Usa STAR']);
+    expect(reply.feedback!.improve, <String>['Usa STAR']);
     expect(reply.nextQuestion, '¿Cómo pruebas tus widgets?');
     expect(reply.summary, isNull);
   });
 
   testWidgets('practica una entrevista de 3 preguntas de punta a punta', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 3000);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final jobs = InMemoryJobsRepository();
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
     await jobs.save(
       const SavedJob(
         job: Job(title: 'Flutter Developer', company: 'Forest'),
       ),
     );
-    final coach = _FakeCoach();
+    final _FakeCoach coach = _FakeCoach();
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           interviewCoachProvider.overrideWithValue(coach),
@@ -108,7 +116,7 @@ void main() {
       isNull,
     );
 
-    for (var i = 1; i <= 3; i++) {
+    for (int i = 1; i <= 3; i++) {
       await tester.enterText(
         find.byKey(const Key('practiceAnswer')),
         'Mi respuesta $i',
@@ -119,7 +127,7 @@ void main() {
       await tester.pumpAndSettle();
     }
 
-    expect(coach.calls.last.map((t) => t.answer), [
+    expect(coach.calls.last.map((PracticeTurn t) => t.answer), <String>[
       'Mi respuesta 1',
       'Mi respuesta 2',
       'Mi respuesta 3',

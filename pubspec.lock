@@ -9,8 +9,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "109.0.0"
-  analyzer:
+  analysis_server_plugin:
     dependency: transitive
+    description:
+      name: analysis_server_plugin
+      sha256: "9f293f95cf41cb513a9a4f322354e2fa5483125e0f18bbeca254543ac9c3dda6"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.24"
+  analyzer:
+    dependency: "direct dev"
     description:
       name: analyzer
       sha256: "6d377901d198536b648172974d9d4f277910502cad92193466869cac0ff34990"
@@ -25,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.3.4"
+  analyzer_plugin:
+    dependency: transitive
+    description:
+      name: analyzer_plugin
+      sha256: "2c59e6fba4971dc9ece97acd55b4f95b67a98e6ae0a55bff6f9dfc2bb59e8b1a"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.14.18"
   android_file_picker:
     dependency: transitive
     description:
@@ -574,7 +590,7 @@ packages:
     source: hosted
     version: "2.2.0"
   http:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -1021,6 +1037,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.9"
+  riverpod_lint:
+    dependency: "direct dev"
+    description:
+      name: riverpod_lint
+      sha256: "215cb3cd54a97e09bc3512535fa4e8bedd3bf2a06dc2ae015ac8e0050fc71bd1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.1.9"
   shared_preferences:
     dependency: "direct main"
     description:
@@ -1386,6 +1410,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.1.4"
+  yaml_edit:
+    dependency: transitive
+    description:
+      name: yaml_edit
+      sha256: "07c9e63ba42519745182b88ca12264a7ba2484d8239958778dfe4d44fe760488"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.4"
   yet_another_json_isolate:
     dependency: transitive
     description:

@@ -2,46 +2,62 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/data/resume_versions_repository.dart';
-import 'package:rumbo/features/applications/domain/application_draft.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/applications/presentation/prepare_application_screen.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/email/data/email_drafter.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/jobs/presentation/apply_email_screen.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_draft.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/mappers/application_draft_mapper.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_resume_versions_repository.dart';
+import 'package:rumbo/features/applications/infrastructure/services/pdf_services.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/email/domain/entities/email_draft.dart';
+import 'package:rumbo/features/email/domain/repositories/email_drafter.dart';
+import 'package:rumbo/features/email/infrastructure/di/email_providers.dart';
+import 'package:rumbo/features/email/infrastructure/services/mail_services.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/mappers/job_row_mapper.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeDrafter implements EmailDrafter {
-  final jobs = <String>[];
+  final List<String> jobs = <String>[];
 
   @override
-  Future<EmailDraft> draft(
-    String applicationId,
-    EmailDraftKind kind, {
+  Future<Result<EmailDraft>> draft({
+    required String applicationId,
+    required EmailDraftKind kind,
     String notes = '',
   }) => throw UnimplementedError();
 
   @override
-  Future<EmailDraft> draftApplication(String jobId, {String notes = ''}) async {
+  Future<Result<EmailDraft>> draftApplication(
+    String jobId, {
+    String notes = '',
+  }) async {
     jobs.add(jobId);
-    return const EmailDraft(
-      subject: 'Flutter Dev - Praxis 2026',
-      body:
-          'Buenos días, Matilde:\n\nMe postulo a la vacante. Adjunto mi hoja '
-          'de vida. Mi expectativa salarial es de [tu expectativa salarial].'
-          '\n\nJuan',
-      to: 'talento@praxis.com',
+    return const Ok<EmailDraft>(
+      EmailDraft(
+        subject: 'Flutter Dev - Praxis 2026',
+        body:
+            'Buenos días, Matilde:\n\nMe postulo a la vacante. Adjunto mi hoja '
+            'de vida. Mi expectativa salarial es de [tu expectativa salarial].'
+            '\n\nJuan',
+        to: 'talento@praxis.com',
+      ),
     );
   }
 }
 
-const _job = SavedJob(
+const SavedJob _job = SavedJob(
   job: Job(
     id: 'j1',
     title: 'Flutter Developer',
@@ -65,7 +81,7 @@ void main() {
       isFalse,
     );
     expect(const Job(title: 'x', company: 'y').hasContact, isFalse);
-    expect(contactToRow(_job.job), {
+    expect(contactToRow(_job.job), <String, Object>{
       'recruiter_name': 'Matilde Durango',
       'recruiter_email': 'talento@praxis.com',
       'recruiter_linkedin': 'https://www.linkedin.com/in/matilde-durango/',
@@ -76,9 +92,9 @@ void main() {
   });
 
   test('completar una oferta no pisa el contacto escrito a mano', () {
-    final completed = completeJob(
-      _job.job,
-      const Job(
+    final Job completed = completeJob(
+      job: _job.job,
+      analyzed: const Job(
         title: 'x',
         company: 'y',
         description: 'nueva',
@@ -88,9 +104,9 @@ void main() {
     );
     expect(completed.recruiterEmail, 'talento@praxis.com');
     expect(completed.recruiterName, 'Matilde Durango');
-    final empty = completeJob(
-      const Job(title: 'x', company: 'y'),
-      const Job(
+    final Job empty = completeJob(
+      job: const Job(title: 'x', company: 'y'),
+      analyzed: const Job(
         title: 'x',
         company: 'y',
         recruiterEmail: 'otro@praxis.com',
@@ -102,34 +118,43 @@ void main() {
   });
 
   test('la HV guardada se vuelve a leer igual', () {
-    const draft = ApplicationDraft(
+    const ApplicationDraft draft = ApplicationDraft(
       jobId: 'j1',
       language: ResumeLanguage.en,
-      resume: TailoredResume(headline: 'Flutter Developer', skills: ['Dart']),
+      resume: TailoredResume(
+        headline: 'Flutter Developer',
+        skills: <String>['Dart'],
+      ),
       coverLetter: 'Carta',
     );
-    final back = resumeVersionFromRow(resumeVersionToRow(draft));
+    final ApplicationDraft back = resumeVersionFromRow(
+      resumeVersionToRow(draft),
+    );
     expect(back.jobId, 'j1');
     expect(back.language, ResumeLanguage.en);
-    expect(back.resume.skills, ['Dart']);
+    expect(back.resume.skills, <String>['Dart']);
     expect(back.coverLetter, 'Carta');
   });
 
   testWidgets(
     'postula por correo con la HV adaptada y marca el proceso como postulado',
-    (tester) async {
+    (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 2600);
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.reset);
-      final jobs = InMemoryJobsRepository([_job]);
-      final applications = InMemoryApplicationsRepository(jobs);
-      final versions = InMemoryResumeVersionsRepository();
-      final drafter = _FakeDrafter();
-      final sent = <Map<String, Object>>[];
+      final InMemoryJobsRepository jobs = InMemoryJobsRepository(<SavedJob>[
+        _job,
+      ]);
+      final InMemoryApplicationsRepository applications =
+          InMemoryApplicationsRepository(jobs);
+      final InMemoryResumeVersionsRepository versions =
+          InMemoryResumeVersionsRepository();
+      final _FakeDrafter drafter = _FakeDrafter();
+      final List<Map<String, Object>> sent = <Map<String, Object>>[];
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
+          overrides: <Override>[
             authRepositoryProvider.overrideWithValue(
               const LocalAuthRepository(),
             ),
@@ -142,7 +167,7 @@ void main() {
               ),
             ),
             emailDrafterProvider.overrideWithValue(drafter),
-            resumeFontsProvider.overrideWith((ref) async => null),
+            resumeFontsProvider.overrideWith((Ref ref) async => null),
             mailWithAttachmentProvider.overrideWithValue(({
               required Uint8List pdf,
               required String fileName,
@@ -150,7 +175,7 @@ void main() {
               required String subject,
               required String body,
             }) async {
-              sent.add({
+              sent.add(<String, Object>{
                 'pdf': pdf.length,
                 'file': fileName,
                 'to': to,
@@ -192,13 +217,13 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('applyByEmail')));
       await tester.pumpAndSettle();
-      expect(drafter.jobs, ['j1']);
+      expect(drafter.jobs, <String>['j1']);
       expect(find.text('talento@praxis.com'), findsWidgets);
       expect(find.text('Flutter Dev - Praxis 2026'), findsOneWidget);
 
       // Hay un hueco por completar: no deja abrir el correo.
       expect(find.byKey(const Key('applyPlaceholders')), findsOneWidget);
-      final open = find.byKey(const Key('openApplyEmail'));
+      final Finder open = find.byKey(const Key('openApplyEmail'));
       expect(tester.widget<ButtonStyleButton>(open).onPressed, isNull);
 
       await tester.enterText(
@@ -217,27 +242,30 @@ void main() {
       expect(sent.single['file'], 'HV Juan Manzano - Praxis.pdf');
       expect(sent.single['pdf'] as int, greaterThan(1000));
 
-      final mark = find.byKey(const Key('markApplied'));
+      final Finder mark = find.byKey(const Key('markApplied'));
       await tester.ensureVisible(mark);
       await tester.tap(mark);
       await tester.pumpAndSettle();
-      final application = (await applications.list()).single.application;
+      final Application application = (await applications.list())
+          .getOrThrow()
+          .single
+          .application;
       expect(application.status, ApplicationStatus.applied);
     },
   );
 
-  testWidgets('edita el contacto del reclutador', (tester) async {
+  testWidgets('edita el contacto del reclutador', (WidgetTester tester) async {
     tester.view.physicalSize = const Size(1080, 2600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final jobs = InMemoryJobsRepository([
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository(<SavedJob>[
       const SavedJob(
         job: Job(id: 'j2', title: 'Mobile Developer', company: 'Alphas'),
       ),
     ]);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
         ],
@@ -277,7 +305,7 @@ void main() {
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
-    final job = (await jobs.list()).single.job;
+    final Job job = (await jobs.list()).getOrThrow().single.job;
     expect(job.recruiterName, 'Georgina Brizio');
     expect(job.recruiterEmail, 'georgina@alphas.co');
     // Con correo y sin método indicado, ya se puede postular por correo.

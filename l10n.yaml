@@ -1,4 +1,6 @@
-arb-dir: lib/l10n
+arb-dir: configuration/language
 template-arb-file: app_es.arb
 output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/shared/configurations/language
 nullable-getter: false

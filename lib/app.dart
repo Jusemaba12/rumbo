@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-import 'core/router/app_router.dart';
-import 'core/theme/app_theme.dart';
-import 'l10n/app_localizations.dart';
+import 'package:rumbo/shared/configurations/language/app_localizations.dart';
+import 'package:rumbo/shared/configurations/theme/app_theme.dart';
+import 'package:rumbo/shared/presentation/extensions/build_context_extension.dart';
+import 'package:rumbo/shared/presentation/navigation/app_router.dart';
 
 class RumboApp extends ConsumerWidget {
   const RumboApp({super.key, this.locale});
@@ -14,7 +14,7 @@ class RumboApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
-      onGenerateTitle: (context) => AppLocalizations.of(context).appName,
+      onGenerateTitle: (BuildContext context) => context.l10n.appName,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       locale: locale,

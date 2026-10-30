@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/core/share/shared_text.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/job_analyzer.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/domain/repositories/job_analyzer.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
+import 'package:rumbo/shared/infrastructure/services/shared_text_source.dart';
 
 class _NoAnalyzer implements JobAnalyzer {
   @override
-  Future<SavedJob> analyze({String? url, String? text}) =>
+  Future<Result<SavedJob>> analyze({String? url, String? text}) =>
       throw UnimplementedError();
 }
 
@@ -21,7 +25,7 @@ class _FakeShared implements SharedTextSource {
 
   @override
   Future<String?> take() async {
-    final value = text;
+    final String? value = text;
     text = null;
     return value;
   }
@@ -40,7 +44,7 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
         jobsRepositoryProvider.overrideWithValue(jobs),
         jobAnalyzerProvider.overrideWithValue(_NoAnalyzer()),
@@ -53,12 +57,13 @@ Future<void> _pump(
 }
 
 Future<InMemoryJobsRepository> _suggestions() async {
-  final jobs = InMemoryJobsRepository();
-  for (final (title, mode, score) in [
-    ('Flutter Remoto', WorkMode.remote, 80),
-    ('Flutter Híbrido', WorkMode.hybrid, 70),
-    ('Mobile Junior', WorkMode.remote, 40),
-  ]) {
+  final InMemoryJobsRepository jobs = InMemoryJobsRepository();
+  for (final (String title, WorkMode mode, int score)
+      in <(String, WorkMode, int)>[
+        ('Flutter Remoto', WorkMode.remote, 80),
+        ('Flutter Híbrido', WorkMode.hybrid, 70),
+        ('Mobile Junior', WorkMode.remote, 40),
+      ]) {
     await jobs.save(
       SavedJob(
         job: Job(
@@ -77,9 +82,9 @@ Future<InMemoryJobsRepository> _suggestions() async {
 
 void main() {
   testWidgets('filtra las sugerencias y recupera una descartada', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final jobs = await _suggestions();
+    final InMemoryJobsRepository jobs = await _suggestions();
     await _pump(tester, jobs);
     await tester.tap(find.text('Ofertas').last);
     await tester.pumpAndSettle();
@@ -106,8 +111,9 @@ void main() {
     expect(find.text('Sugeridas (2)'), findsOneWidget);
     await tester.tap(find.text('Descartadas · 1'));
     await tester.pumpAndSettle();
-    final id = (await jobs.list())
-        .firstWhere((s) => s.job.title == 'Mobile Junior')
+    final String id = (await jobs.list())
+        .getOrThrow()
+        .firstWhere((SavedJob s) => s.job.title == 'Mobile Junior')
         .job
         .id;
     await tester.tap(find.byKey(Key('restore-$id')));
@@ -121,7 +127,7 @@ void main() {
   });
 
   testWidgets('una oferta compartida abre «Añadir oferta» con el enlace', (
-    tester,
+    WidgetTester tester,
   ) async {
     await _pump(
       tester,
@@ -129,7 +135,7 @@ void main() {
       shared: 'Flutter Developer https://www.getonbrd.com/jobs/flutter-1',
     );
     expect(find.text('Nueva oferta'), findsOneWidget);
-    final url = tester.widget<TextField>(
+    final TextField url = tester.widget<TextField>(
       find.descendant(
         of: find.byKey(const Key('jobUrl')),
         matching: find.byType(TextField),

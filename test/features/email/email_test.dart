@@ -2,25 +2,33 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/core/time/clock.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/email/data/email_repository.dart';
-import 'package:rumbo/features/email/domain/email_update.dart';
-import 'package:rumbo/features/email/domain/gmail_script.dart';
-import 'package:rumbo/features/email/presentation/gmail_connect_screen.dart';
-import 'package:rumbo/features/interviews/data/interviews_repository.dart';
-import 'package:rumbo/features/interviews/domain/interview.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/email/domain/entities/email_update.dart';
+import 'package:rumbo/features/email/domain/services/gmail_script.dart';
+import 'package:rumbo/features/email/domain/services/sync_key.dart';
+import 'package:rumbo/features/email/infrastructure/di/email_providers.dart';
+import 'package:rumbo/features/email/infrastructure/mappers/email_update_mapper.dart';
+import 'package:rumbo/features/email/infrastructure/repositories/in_memory_email_repository.dart';
+import 'package:rumbo/features/email/infrastructure/services/mail_services.dart';
+import 'package:rumbo/features/interviews/domain/entities/interview.dart';
+import 'package:rumbo/features/interviews/infrastructure/di/interviews_providers.dart';
+import 'package:rumbo/features/interviews/infrastructure/repositories/in_memory_interviews_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/shared/application/services/clock.dart';
 
 void main() {
   test('la clave tiene 64 caracteres hex y se guarda como SHA-256', () {
-    final key = generateSyncKey(Random(1));
+    final String key = generateSyncKey(Random(1));
     expect(key, matches(RegExp(r'^[0-9a-f]{64}$')));
     expect(generateSyncKey(Random(2)), isNot(key));
     expect(
@@ -30,7 +38,7 @@ void main() {
   });
 
   test('el script lleva la URL y la clave y se instala cada hora', () {
-    final script = buildGmailScript(
+    final String script = buildGmailScript(
       functionUrl: 'https://x.supabase.co/functions/v1/email-sync',
       key: 'k123',
     );
@@ -49,7 +57,7 @@ void main() {
   });
 
   test('convierte las filas de propuestas', () {
-    final update = emailUpdateFromRow({
+    final EmailUpdate update = emailUpdateFromRow(<String, dynamic>{
       'id': 'u1',
       'application_id': 'a1',
       'sender': 'Ana <ana@forest.cl>',
@@ -69,26 +77,28 @@ void main() {
     tester.view.physicalSize = const Size(1080, 2600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final now = DateTime(2026, 10, 18, 9);
-    final jobs = InMemoryJobsRepository();
+    final DateTime now = DateTime(2026, 10, 18, 9);
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
     await jobs.save(
       const SavedJob(
         job: Job(title: 'Flutter Developer', company: 'Forest'),
       ),
     );
-    final jobId = (await jobs.list()).single.job.id;
-    final applications = InMemoryApplicationsRepository(jobs, clock: () => now);
-    final process = await applications.save(
+    final String jobId = (await jobs.list()).getOrThrow().single.job.id;
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs, clock: () => now);
+    final Application process = (await applications.save(
       Application(
         jobId: jobId,
         status: ApplicationStatus.applied,
         appliedAt: now,
       ),
-    );
-    final interviews = InMemoryInterviewsRepository();
+    )).getOrThrow();
+    final InMemoryInterviewsRepository interviews =
+        InMemoryInterviewsRepository();
     email.pending
       ..clear()
-      ..addAll([
+      ..addAll(<EmailUpdate>[
         EmailUpdate(
           id: 'u1',
           applicationId: process.id,
@@ -107,7 +117,7 @@ void main() {
       ]);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),
@@ -124,9 +134,13 @@ void main() {
 
   testWidgets(
     'aplicar una propuesta programa la entrevista y cambia el estado',
-    (tester) async {
-      final email = InMemoryEmailRepository();
-      final (applications, interviews, processId) = await pumpHome(
+    (WidgetTester tester) async {
+      final InMemoryEmailRepository email = InMemoryEmailRepository();
+      final (
+        InMemoryApplicationsRepository applications,
+        InMemoryInterviewsRepository interviews,
+        String processId,
+      ) = await pumpHome(
         tester,
         email,
       );
@@ -147,12 +161,12 @@ void main() {
       expect(email.resolved['u1'], isTrue);
       expect(find.text('Novedades del correo'), findsNothing);
 
-      final interview = (await interviews.list()).single;
+      final Interview interview = (await interviews.list()).getOrThrow().single;
       expect(interview.applicationId, processId);
       expect(interview.kind, InterviewKind.screening);
       expect(interview.scheduledAt, DateTime(2026, 10, 23, 10));
       expect(
-        (await applications.list()).single.application.status,
+        (await applications.list()).getOrThrow().single.application.status,
         ApplicationStatus.interview,
       );
       // Sale en próximas entrevistas.
@@ -161,13 +175,13 @@ void main() {
   );
 
   testWidgets('Conectar Gmail copia el script con una clave nueva', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
     // Clave del script v1, anterior a las alertas de LinkedIn.
-    final email = InMemoryEmailRepository()
+    final InMemoryEmailRepository email = InMemoryEmailRepository()
       ..connection = EmailSyncStatus(
         createdAt: DateTime.utc(2026, 10, 15),
         lastUsedAt: DateTime.utc(2026, 10, 19),
@@ -175,11 +189,11 @@ void main() {
     String? copied;
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           emailRepositoryProvider.overrideWithValue(email),
           clipboardWriterProvider.overrideWithValue(
-            (text) async => copied = text,
+            (String text) async => copied = text,
           ),
         ],
         child: const RumboApp(locale: Locale('es')),
@@ -215,7 +229,8 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const Key('copyScript')));
     await tester.pumpAndSettle();
-    final key = RegExp(r"RUMBO_KEY = '([0-9a-f]{64})'").firstMatch(copied!)!;
+    final RegExpMatch key = RegExp(r"RUMBO_KEY = '([0-9a-f]{64})'")
+        .firstMatch(copied!)!;
     expect(hashSyncKey(key.group(1)!), email.keyHash);
     expect(
       find.text('Script copiado. Pégalo en script.google.com.'),

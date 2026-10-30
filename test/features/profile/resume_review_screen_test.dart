@@ -1,46 +1,58 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/data/resume_keywords.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/domain/entities/resume_keyword.dart';
+import 'package:rumbo/features/profile/domain/repositories/resume_keywords_source.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeKeywords implements ResumeKeywordsSource {
-  var calls = 0;
+  int calls = 0;
   bool? lastForce;
 
   @override
-  Future<KeywordsResult?> cached() async => null;
+  Future<Result<KeywordsResult?>> cached() async =>
+      const Ok<KeywordsResult?>(null);
 
   @override
-  Future<KeywordsResult> fetch({bool force = false}) async {
+  Future<Result<KeywordsResult>> fetch({bool force = false}) async {
     calls++;
     lastForce = force;
-    return KeywordsResult(
-      updatedAt: DateTime(2026, 10, 16),
-      keywords: const [
-        ResumeKeyword(keyword: 'Flutter', important: true),
-        ResumeKeyword(keyword: 'CI/CD', important: true, reason: 'Despliegues'),
-        ResumeKeyword(keyword: 'Unit testing', important: false),
-      ],
+    return Ok<KeywordsResult>(
+      KeywordsResult(
+        updatedAt: DateTime(2026, 10, 16),
+        keywords: const <ResumeKeyword>[
+          ResumeKeyword(keyword: 'Flutter', important: true),
+          ResumeKeyword(
+            keyword: 'CI/CD',
+            important: true,
+            reason: 'Despliegues',
+          ),
+          ResumeKeyword(keyword: 'Unit testing', important: false),
+        ],
+      ),
     );
   }
 }
 
 void main() {
   testWidgets('revisa la HV, busca palabras clave y lleva a corregir', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final keywords = _FakeKeywords();
+    final _FakeKeywords keywords = _FakeKeywords();
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           profileRepositoryProvider.overrideWithValue(
             InMemoryProfileRepository(
@@ -49,13 +61,15 @@ void main() {
                   fullName: 'Juan Manzano',
                   headline: 'Flutter Developer',
                 ),
-                experiences: [
+                experiences: <Experience>[
                   Experience(
                     id: 'e1',
                     company: 'GSE',
                     role: 'Flutter Developer',
                     startDate: DateTime(2024, 9),
-                    achievements: const ['Responsable de la app de pagos'],
+                    achievements: const <String>[
+                      'Responsable de la app de pagos',
+                    ],
                   ),
                 ],
               ),
@@ -107,7 +121,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(
       find.byWidgetPredicate(
-        (widget) => widget is EditableText && widget.controller.text == 'CI/CD',
+        (Widget widget) =>
+            widget is EditableText && widget.controller.text == 'CI/CD',
       ),
       findsOneWidget,
     );

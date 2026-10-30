@@ -1,85 +1,99 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/data/ats_reader.dart';
-import 'package:rumbo/features/applications/data/resume_tailor.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/applications/data/resume_versions_repository.dart';
-import 'package:rumbo/features/applications/domain/application_draft.dart';
-import 'package:rumbo/features/applications/presentation/prepare_application_screen.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_draft.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/domain/repositories/ats_reader.dart';
+import 'package:rumbo/features/applications/domain/repositories/resume_tailor.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_resume_versions_repository.dart';
+import 'package:rumbo/features/applications/infrastructure/services/pdf_services.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeAtsReader implements AtsReader {
   @override
-  Future<AtsReading> read(Uint8List pdf) async => (
+  Future<Result<AtsReading>> read(Uint8List pdf) async => const Ok<AtsReading>((
     text: 'Juan Manzano\nDesarrollador Flutter para fintech\nEXPERIENCIA',
     pages: 1,
-  );
+  ));
 }
 
 class _FakeTailor implements ResumeTailor {
   @override
-  Future<ApplicationDraft> tailor(String jobId) async => ApplicationDraft(
-    jobId: jobId,
-    resume: TailoredResume(
-      headline: 'Desarrollador Flutter para fintech',
-      summary: 'Dos años creando apps con Flutter y Riverpod.',
-      experiences: [
-        TailoredExperience(
-          experienceId: 'e1',
-          company: 'GSE',
-          role: 'Flutter Developer',
-          startDate: DateTime(2024, 9),
-          bullets: const ['Reduje el arranque un 40 %'],
+  Future<Result<ApplicationDraft>> tailor(String jobId) async =>
+      Ok<ApplicationDraft>(
+        ApplicationDraft(
+          jobId: jobId,
+          resume: TailoredResume(
+            headline: 'Desarrollador Flutter para fintech',
+            summary: 'Dos años creando apps con Flutter y Riverpod.',
+            experiences: <TailoredExperience>[
+              TailoredExperience(
+                experienceId: 'e1',
+                company: 'GSE',
+                role: 'Flutter Developer',
+                startDate: DateTime(2024, 9),
+                bullets: const <String>['Reduje el arranque un 40 %'],
+              ),
+            ],
+            skills: const <String>['Dart', 'Riverpod'],
+          ),
+          coverLetter: 'Hola equipo de Fintech…',
+          changes: const <ResumeChange>[
+            ResumeChange(
+              section: 'Titular',
+              before: 'Flutter Developer',
+              after: 'Desarrollador Flutter para fintech',
+              reason: 'Usa el nombre del puesto',
+            ),
+          ],
+          keywords: const <String>['Riverpod'],
+          rejected: const <String>['Lideré un equipo de 8 personas'],
         ),
-      ],
-      skills: const ['Dart', 'Riverpod'],
-    ),
-    coverLetter: 'Hola equipo de Fintech…',
-    changes: const [
-      ResumeChange(
-        section: 'Titular',
-        before: 'Flutter Developer',
-        after: 'Desarrollador Flutter para fintech',
-        reason: 'Usa el nombre del puesto',
-      ),
-    ],
-    keywords: const ['Riverpod'],
-    rejected: const ['Lideré un equipo de 8 personas'],
-  );
+      );
 }
 
 void main() {
-  testWidgets('prepara, guarda la versión y exporta el PDF', (tester) async {
+  testWidgets('prepara, guarda la versión y exporta el PDF', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
-    final versions = InMemoryResumeVersionsRepository();
-    final jobs = InMemoryJobsRepository();
-    final applications = InMemoryApplicationsRepository(jobs);
+    final InMemoryResumeVersionsRepository versions =
+        InMemoryResumeVersionsRepository();
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs);
     await jobs.save(
       const SavedJob(
         job: Job(
           title: 'Senior Flutter Developer',
           company: 'Fintech',
-          requirements: ['Riverpod', 'CI/CD'],
+          requirements: <String>['Riverpod', 'CI/CD'],
         ),
       ),
     );
     String? sharedName;
-    var sharedBytes = 0;
+    int sharedBytes = 0;
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           profileRepositoryProvider.overrideWithValue(
@@ -91,9 +105,12 @@ void main() {
           resumeVersionsRepositoryProvider.overrideWithValue(versions),
           applicationsRepositoryProvider.overrideWithValue(applications),
           // Sin red en los tests: se usan las fuentes por defecto del PDF.
-          resumeFontsProvider.overrideWith((ref) async => null),
+          resumeFontsProvider.overrideWith((Ref ref) async => null),
           atsReaderProvider.overrideWithValue(_FakeAtsReader()),
-          pdfSharerProvider.overrideWithValue((bytes, name) async {
+          pdfSharerProvider.overrideWithValue((
+            List<int> bytes,
+            String name,
+          ) async {
             sharedBytes = bytes.length;
             sharedName = name;
           }),
@@ -145,7 +162,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(versions.saved.single.coverLetter, 'Carta editada');
     // Guardar la versión lleva la oferta al tablero como «Preparando».
-    final process = (await applications.list()).single.application;
+    final Application process = (await applications.list())
+        .getOrThrow()
+        .single
+        .application;
     expect(process.status, ApplicationStatus.preparing);
     expect(process.resumeVersionId, 'version-1');
     expect(process.coverLetter, 'Carta editada');
@@ -153,7 +173,7 @@ void main() {
 
     // Generar el PDF hace trabajo asíncrono real fuera del reloj de pruebas.
     await tester.tap(find.text('Exportar PDF'));
-    for (var i = 0; i < 50 && sharedName == null; i++) {
+    for (int i = 0; i < 50 && sharedName == null; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 100)),
       );

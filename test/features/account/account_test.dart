@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/account/data/account_repository.dart';
-import 'package:rumbo/features/account/domain/app_release.dart';
-import 'package:rumbo/features/account/presentation/account_controller.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
+import 'package:rumbo/features/account/domain/entities/app_release.dart';
+import 'package:rumbo/features/account/infrastructure/di/account_providers.dart';
+import 'package:rumbo/features/account/infrastructure/repositories/local_account_repository.dart';
+import 'package:rumbo/features/account/presentation/providers/account/account_provider.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
 
-const _release = AppRelease(
+const AppRelease _release = AppRelease(
   versionName: '0.3.0',
   versionCode: 10,
   downloadUrl: 'https://example.com/Rumbo-0.3.0.apk',
@@ -23,10 +26,10 @@ Future<void> _pump(
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
         accountRepositoryProvider.overrideWithValue(account),
-        installedBuildProvider.overrideWith((ref) async => installedBuild),
+        installedBuildProvider.overrideWith((Ref ref) async => installedBuild),
       ],
       child: const RumboApp(locale: Locale('es')),
     ),
@@ -43,9 +46,11 @@ void main() {
   });
 
   testWidgets('hay que aceptar el aviso de privacidad antes de entrar', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final account = LocalAccountRepository(accepted: false);
+    final LocalAccountRepository account = LocalAccountRepository(
+      accepted: false,
+    );
     await _pump(tester, account);
     expect(find.text('Antes de empezar'), findsOneWidget);
     expect(find.textContaining('hasta 40 veces al día'), findsOneWidget);
@@ -58,14 +63,18 @@ void main() {
     expect(find.text('Más'), findsOneWidget);
   });
 
-  testWidgets('una cuenta nueva ve los primeros pasos', (tester) async {
+  testWidgets('una cuenta nueva ve los primeros pasos', (
+    WidgetTester tester,
+  ) async {
     await _pump(tester, LocalAccountRepository());
     expect(find.byKey(const Key('firstSteps')), findsOneWidget);
     expect(find.byKey(const Key('firstStepProfile')), findsOneWidget);
     expect(find.byKey(const Key('firstStepSearch')), findsOneWidget);
   });
 
-  testWidgets('avisa de una versión nueva del APK', (tester) async {
+  testWidgets('avisa de una versión nueva del APK', (
+    WidgetTester tester,
+  ) async {
     await _pump(
       tester,
       LocalAccountRepository(release: _release),
@@ -78,7 +87,7 @@ void main() {
     );
   });
 
-  testWidgets('sin versión nueva no hay aviso', (tester) async {
+  testWidgets('sin versión nueva no hay aviso', (WidgetTester tester) async {
     await _pump(
       tester,
       LocalAccountRepository(release: _release),

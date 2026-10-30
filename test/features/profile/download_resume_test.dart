@@ -1,34 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/data/resume_pdf.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/applications/presentation/prepare_application_screen.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_draft.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/applications/infrastructure/services/pdf_services.dart';
+import 'package:rumbo/features/applications/infrastructure/services/resume_pdf.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
 
-final _data = ProfileData(
+final ProfileData _data = ProfileData(
   profile: const Profile(
     fullName: 'Ana Pérez',
     headline: 'Flutter Developer',
     summary: 'Desarrolladora móvil.',
   ),
-  experiences: [
+  experiences: <Experience>[
     Experience(
       id: 'e1',
       company: 'GSE',
       role: 'Flutter Developer',
       startDate: DateTime(2024, 3),
-      achievements: const ['Publiqué 3 apps en las tiendas.'],
+      achievements: const <String>['Publiqué 3 apps en las tiendas.'],
     ),
   ],
-  skills: const [
+  skills: const <Skill>[
     Skill(name: 'Dart'),
     Skill(name: 'Riverpod'),
   ],
@@ -36,30 +42,35 @@ final _data = ProfileData(
 
 void main() {
   test('la HV base lleva el perfil tal cual', () {
-    final draft = baseResumeDraft(_data);
+    final ApplicationDraft draft = baseResumeDraft(_data);
     expect(draft.resume.headline, 'Flutter Developer');
     expect(draft.resume.summary, 'Desarrolladora móvil.');
     expect(draft.resume.experiences.single.company, 'GSE');
-    expect(draft.resume.experiences.single.bullets, [
+    expect(draft.resume.experiences.single.bullets, <String>[
       'Publiqué 3 apps en las tiendas.',
     ]);
-    expect(draft.resume.skills, ['Dart', 'Riverpod']);
+    expect(draft.resume.skills, <String>['Dart', 'Riverpod']);
   });
 
-  testWidgets('descarga la HV base desde la pestaña HV', (tester) async {
+  testWidgets('descarga la HV base desde la pestaña HV', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final shared = <(int, String)>[];
+    final List<(int, String)> shared = <(int, String)>[];
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           profileRepositoryProvider.overrideWithValue(
             InMemoryProfileRepository(_data),
           ),
-          resumeFontsProvider.overrideWith((ref) async => null),
-          pdfSharerProvider.overrideWithValue((bytes, name) async {
+          resumeFontsProvider.overrideWith((Ref ref) async => null),
+          pdfSharerProvider.overrideWithValue((
+            List<int> bytes,
+            String name,
+          ) async {
             shared.add((bytes.length, name));
           }),
         ],
@@ -77,11 +88,11 @@ void main() {
   });
 
   testWidgets('sin nombre en el perfil no hay botón de descargar', (
-    tester,
+    WidgetTester tester,
   ) async {
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           profileRepositoryProvider.overrideWithValue(
             InMemoryProfileRepository(),
@@ -96,11 +107,13 @@ void main() {
     expect(find.byKey(const Key('downloadResume')), findsNothing);
   });
 
-  testWidgets('las ofertas ya postuladas salen de Guardadas', (tester) async {
+  testWidgets('las ofertas ya postuladas salen de Guardadas', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final jobs = InMemoryJobsRepository(const [
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository(const <SavedJob>[
       SavedJob(
         job: Job(id: 'a', title: 'Postulada', company: 'Acme'),
       ),
@@ -111,7 +124,8 @@ void main() {
         job: Job(id: 'c', title: 'Sin proceso', company: 'Gamma'),
       ),
     ]);
-    final applications = InMemoryApplicationsRepository(jobs);
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs);
     await applications.save(
       Application(
         jobId: 'a',
@@ -124,7 +138,7 @@ void main() {
     );
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),

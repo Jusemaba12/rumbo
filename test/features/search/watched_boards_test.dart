@@ -2,13 +2,18 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/search/data/search_repository.dart';
-import 'package:rumbo/features/search/domain/search_preferences.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/search/domain/entities/search_preferences.dart';
+import 'package:rumbo/features/search/infrastructure/di/search_providers.dart';
+import 'package:rumbo/features/search/infrastructure/mappers/search_preferences_mapper.dart';
+import 'package:rumbo/features/search/infrastructure/repositories/in_memory_search_repository.dart';
 
 void main() {
   group('parseBoardUrl', () {
@@ -104,21 +109,21 @@ void main() {
   });
 
   test('guarda y lee las empresas vigiladas', () {
-    const prefs = SearchPreferences(
-      technologies: ['Flutter'],
-      watchedBoards: [
+    const SearchPreferences prefs = SearchPreferences(
+      technologies: <String>['Flutter'],
+      watchedBoards: <WatchedBoard>[
         WatchedBoard(provider: BoardProvider.ashby, token: 'truelogic'),
       ],
     );
-    final row = preferencesToRow(prefs, userId: 'u1');
-    expect(row['watched_boards'], [
-      {'provider': 'ashby', 'token': 'truelogic'},
+    final Map<String, dynamic> row = preferencesToRow(prefs, userId: 'u1');
+    expect(row['watched_boards'], <Map<String, String>>[
+      <String, String>{'provider': 'ashby', 'token': 'truelogic'},
     ]);
-    final back = preferencesFromRow({
+    final SearchPreferences back = preferencesFromRow(<String, dynamic>{
       ...row,
-      'watched_boards': [
-        ...row['watched_boards'] as List,
-        {'provider': 'workday', 'token': 'x'},
+      'watched_boards': <dynamic>[
+        ...row['watched_boards'] as List<dynamic>,
+        <String, String>{'provider': 'workday', 'token': 'x'},
         'basura',
       ],
     });
@@ -134,18 +139,18 @@ void main() {
   });
 
   testWidgets('añade y quita empresas vigiladas en las preferencias', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 3200);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final search = InMemorySearchRepository(
-      preferences: const SearchPreferences(technologies: ['Flutter']),
+    final InMemorySearchRepository search = InMemorySearchRepository(
+      preferences: const SearchPreferences(technologies: <String>['Flutter']),
     );
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(InMemoryJobsRepository()),
           searchRepositoryProvider.overrideWithValue(search),
@@ -202,7 +207,7 @@ void main() {
 
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
-    expect(search.preferences!.watchedBoards, const [
+    expect(search.preferences!.watchedBoards, const <WatchedBoard>[
       WatchedBoard(provider: BoardProvider.ashby, token: 'truelogic'),
     ]);
   });
@@ -210,17 +215,17 @@ void main() {
   testWidgets(
     'las sugerencias con Flutter se añaden con un toque y deslizar recupera '
     'lo guardado',
-    (tester) async {
+    (WidgetTester tester) async {
       tester.view.physicalSize = const Size(1080, 4000);
       tester.view.devicePixelRatio = 2;
       addTearDown(tester.view.reset);
-      final search = InMemorySearchRepository(
-        preferences: const SearchPreferences(technologies: ['Flutter']),
+      final InMemorySearchRepository search = InMemorySearchRepository(
+        preferences: const SearchPreferences(technologies: <String>['Flutter']),
       );
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [
+          overrides: <Override>[
             authRepositoryProvider.overrideWithValue(
               const LocalAuthRepository(),
             ),
@@ -274,7 +279,7 @@ void main() {
       await tester.pump();
       await tester.tap(find.text('Guardar'));
       await tester.pumpAndSettle();
-      expect(search.preferences!.watchedBoards, const [
+      expect(search.preferences!.watchedBoards, const <WatchedBoard>[
         WatchedBoard(provider: BoardProvider.ashby, token: 'revenuecat'),
       ]);
     },

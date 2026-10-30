@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/core/time/clock.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/mappers/application_mapper.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/shared/application/services/clock.dart';
 
 void main() {
   test('convierte las filas de Supabase de procesos e historial', () {
-    final application = applicationFromRow({
+    final Application application = applicationFromRow(<String, dynamic>{
       'id': 'app-1',
       'job_id': 'job-1',
       'resume_version_id': null,
@@ -26,11 +31,11 @@ void main() {
     });
     expect(application.status, ApplicationStatus.technicalTest);
     expect(application.appliedAt!.isUtc, isFalse);
-    final row = applicationToRow(application);
+    final Map<String, dynamic> row = applicationToRow(application);
     expect(row['status'], 'technical_test');
     expect(row['applied_at'], '2026-10-01T15:00:00.000Z');
 
-    final event = eventFromRow({
+    final ApplicationEvent event = eventFromRow(<String, dynamic>{
       'id': 'ev-1',
       'from_status': 'applied',
       'to_status': 'in_review',
@@ -43,24 +48,25 @@ void main() {
   });
 
   testWidgets('sigue una oferta, avanza su estado y avisa del seguimiento', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
-    var now = DateTime(2026, 10, 15, 9);
-    final jobs = InMemoryJobsRepository();
+    DateTime now = DateTime(2026, 10, 15, 9);
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
     await jobs.save(
       const SavedJob(
         job: Job(title: 'Senior Flutter Developer', company: 'Fintech'),
       ),
     );
-    final applications = InMemoryApplicationsRepository(jobs, clock: () => now);
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs, clock: () => now);
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),
@@ -103,7 +109,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Notas guardadas.'), findsOneWidget);
     expect(
-      (await applications.list()).single.application.notes,
+      (await applications.list()).getOrThrow().single.application.notes,
       'Recruiter: Ana',
     );
 
@@ -111,35 +117,42 @@ void main() {
     now = now.add(const Duration(days: 8));
     await tester.tap(find.byKey(const Key('followUpDone')));
     await tester.pumpAndSettle();
-    final saved = (await applications.list()).single.application;
+    final Application saved = (await applications.list())
+        .getOrThrow()
+        .single
+        .application;
     expect(saved.nextFollowUpAt, DateTime(2026, 10, 30, 9));
     expect(saved.status, ApplicationStatus.applied);
   });
 
   testWidgets('el tablero agrupa por estado y separa los cerrados', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
 
-    final now = DateTime(2026, 10, 15, 9);
-    final jobs = InMemoryJobsRepository();
-    for (final title in ['App A', 'App B', 'App C']) {
+    final DateTime now = DateTime(2026, 10, 15, 9);
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
+    for (final String title in <String>['App A', 'App B', 'App C']) {
       await jobs.save(
         SavedJob(
           job: Job(title: title, company: 'Empresa $title'),
         ),
       );
     }
-    final ids = {for (final s in await jobs.list()) s.job.title: s.job.id};
-    final applications = InMemoryApplicationsRepository(jobs, clock: () => now);
-    final a = await applications.save(
+    final Map<String, String> ids = <String, String>{
+      for (final SavedJob s in (await jobs.list()).getOrThrow())
+        s.job.title: s.job.id,
+    };
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs, clock: () => now);
+    final Application a = (await applications.save(
       ApplicationRow.applied(
         ids['App A']!,
         now.subtract(const Duration(days: 9)),
       ),
-    );
+    )).getOrThrow();
     expect(a.status, ApplicationStatus.applied);
     await applications.save(
       ApplicationRow.withStatus(ids['App B']!, ApplicationStatus.interview),
@@ -150,7 +163,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),

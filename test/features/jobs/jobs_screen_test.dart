@@ -1,32 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/job_analyzer.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/domain/failures/job_failures.dart';
+import 'package:rumbo/features/jobs/domain/repositories/job_analyzer.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeAnalyzer implements JobAnalyzer {
   _FakeAnalyzer(this.result);
 
-  final Future<SavedJob> Function() result;
+  final Future<Result<SavedJob>> Function() result;
   String? lastText;
 
   @override
-  Future<SavedJob> analyze({String? url, String? text}) {
+  Future<Result<SavedJob>> analyze({String? url, String? text}) {
     lastText = text;
     return result();
   }
 }
 
-const _analysis = SavedJob(
+const SavedJob _analysis = SavedJob(
   job: Job(
     title: 'Senior Flutter Developer',
     company: 'Fintech',
     location: 'LATAM',
     workMode: WorkMode.remote,
-    requirements: ['Flutter', 'Riverpod', 'Kotlin'],
+    requirements: <String>['Flutter', 'Riverpod', 'Kotlin'],
     salaryMin: 4000,
     salaryMax: 5500,
     salaryCurrency: 'USD',
@@ -34,8 +39,8 @@ const _analysis = SavedJob(
   ),
   match: JobMatch(
     score: 82,
-    met: ['Flutter: 2 años en GSE'],
-    missing: ['Kotlin'],
+    met: <String>['Flutter: 2 años en GSE'],
+    missing: <String>['Kotlin'],
     explanation: 'Encajas bien; destaca tu experiencia con Riverpod.',
   ),
 );
@@ -48,10 +53,10 @@ Future<InMemoryJobsRepository> _openJobs(
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
 
-  final repository = InMemoryJobsRepository();
+  final InMemoryJobsRepository repository = InMemoryJobsRepository();
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
         jobsRepositoryProvider.overrideWithValue(repository),
         jobAnalyzerProvider.overrideWithValue(analyzer),
@@ -67,10 +72,12 @@ Future<InMemoryJobsRepository> _openJobs(
 
 void main() {
   testWidgets('analiza una oferta pegada, la guarda y la elimina', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final analyzer = _FakeAnalyzer(() async => _analysis);
-    final repository = await _openJobs(tester, analyzer);
+    final _FakeAnalyzer analyzer = _FakeAnalyzer(
+      () async => const Ok<SavedJob>(_analysis),
+    );
+    final InMemoryJobsRepository repository = await _openJobs(tester, analyzer);
     expect(find.text('Aún no hay ofertas'), findsOneWidget);
 
     await tester.tap(find.byKey(const Key('addJob')));
@@ -101,7 +108,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Oferta guardada.'), findsOneWidget);
     expect(find.text('Senior Flutter Developer'), findsOneWidget);
-    expect((await repository.list()).single.match!.score, 82);
+    expect((await repository.list()).getOrThrow().single.match!.score, 82);
 
     await tester.tap(find.text('Senior Flutter Developer'));
     await tester.pumpAndSettle();
@@ -112,18 +119,15 @@ void main() {
     await tester.tap(find.widgetWithText(FilledButton, 'Eliminar'));
     await tester.pumpAndSettle();
     expect(find.text('Aún no hay ofertas'), findsOneWidget);
-    expect(await repository.list(), isEmpty);
+    expect((await repository.list()).getOrThrow(), isEmpty);
   });
 
   testWidgets('pide la descripción si el enlace no se puede leer', (
-    tester,
+    WidgetTester tester,
   ) async {
     await _openJobs(
       tester,
-      _FakeAnalyzer(
-        () async =>
-            throw const JobAnalysisException(JobAnalysisFailure.noDescription),
-      ),
+      _FakeAnalyzer(() async => const Err<SavedJob>(NoDescriptionFailure())),
     );
 
     await tester.tap(find.byKey(const Key('addJob')));
@@ -142,10 +146,12 @@ void main() {
     expect(find.text('Analizar oferta'), findsOneWidget);
   });
 
-  testWidgets('avisa si la oferta ya estaba guardada', (tester) async {
-    final repository = await _openJobs(
+  testWidgets('avisa si la oferta ya estaba guardada', (
+    WidgetTester tester,
+  ) async {
+    final InMemoryJobsRepository repository = await _openJobs(
       tester,
-      _FakeAnalyzer(() async => _analysis),
+      _FakeAnalyzer(() async => const Ok<SavedJob>(_analysis)),
     );
     await repository.save(_analysis);
 
@@ -158,6 +164,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Ya tienes guardada esta oferta.'), findsOneWidget);
-    expect(await repository.list(), hasLength(1));
+    expect((await repository.list()).getOrThrow(), hasLength(1));
   });
 }

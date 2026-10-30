@@ -2,20 +2,26 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/data/resume_importer.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/domain/failures/profile_failures.dart';
+import 'package:rumbo/features/profile/domain/repositories/resume_importer.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
+import 'package:rumbo/features/profile/infrastructure/services/pdf_picker.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeImporter implements ResumeImporter {
   _FakeImporter(this.result);
 
-  final Future<ProfileData> Function() result;
+  final Future<Result<ProfileData>> Function() result;
 
   @override
-  Future<ProfileData> extract(Uint8List pdf) => result();
+  Future<Result<ProfileData>> extract(Uint8List pdf) => result();
 }
 
 Future<InMemoryProfileRepository> _openImport(
@@ -26,17 +32,17 @@ Future<InMemoryProfileRepository> _openImport(
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
 
-  final repository = InMemoryProfileRepository(
+  final InMemoryProfileRepository repository = InMemoryProfileRepository(
     const ProfileData(profile: Profile(fullName: 'Juan')),
   );
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
         profileRepositoryProvider.overrideWithValue(repository),
         resumeImporterProvider.overrideWithValue(importer),
         pdfPickerProvider.overrideWithValue(
-          () async => Uint8List.fromList([1, 2, 3]),
+          () async => Uint8List.fromList(<int>[1, 2, 3]),
         ),
       ],
       child: const RumboApp(locale: Locale('es')),
@@ -54,27 +60,29 @@ Future<InMemoryProfileRepository> _openImport(
 
 void main() {
   testWidgets('muestra lo extraído y lo añade al perfil al confirmar', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final repository = await _openImport(
+    final InMemoryProfileRepository repository = await _openImport(
       tester,
       _FakeImporter(
-        () async => ProfileData(
-          profile: const Profile(
-            fullName: 'Juan Manzano',
-            headline: 'Desarrollador Flutter',
-          ),
-          experiences: [
-            Experience(
-              company: 'Acme',
-              role: 'Flutter Developer',
-              startDate: DateTime(2022),
+        () async => Ok<ProfileData>(
+          ProfileData(
+            profile: const Profile(
+              fullName: 'Juan Manzano',
+              headline: 'Desarrollador Flutter',
             ),
-          ],
-          skills: const [
-            Skill(name: 'Dart'),
-            Skill(name: 'Riverpod'),
-          ],
+            experiences: <Experience>[
+              Experience(
+                company: 'Acme',
+                role: 'Flutter Developer',
+                startDate: DateTime(2022),
+              ),
+            ],
+            skills: const <Skill>[
+              Skill(name: 'Dart'),
+              Skill(name: 'Riverpod'),
+            ],
+          ),
         ),
       ),
     );
@@ -84,26 +92,27 @@ void main() {
     expect(find.textContaining('Nombre completo'), findsNothing);
     expect(find.text('Flutter Developer · Acme'), findsOneWidget);
     expect(find.text('Dart, Riverpod'), findsOneWidget);
-    expect((await repository.load()).skills, isEmpty);
+    expect((await repository.load()).getOrThrow().skills, isEmpty);
 
     await tester.tap(find.text('Añadir a mi perfil'));
     await tester.pumpAndSettle();
 
-    final saved = await repository.load();
+    final ProfileData saved = (await repository.load()).getOrThrow();
     expect(saved.profile.fullName, 'Juan');
     expect(saved.profile.headline, 'Desarrollador Flutter');
     expect(saved.experiences.single.company, 'Acme');
-    expect(saved.skills.map((s) => s.name), ['Dart', 'Riverpod']);
+    expect(saved.skills.map((Skill s) => s.name), <String>['Dart', 'Riverpod']);
     expect(find.text('Perfil actualizado con tu HV.'), findsOneWidget);
     expect(find.text('Tu perfil'), findsOneWidget);
   });
 
-  testWidgets('explica el error si el PDF no se puede leer', (tester) async {
+  testWidgets('explica el error si el PDF no se puede leer', (
+    WidgetTester tester,
+  ) async {
     await _openImport(
       tester,
       _FakeImporter(
-        () async =>
-            throw const ResumeImportException(ResumeImportFailure.unreadable),
+        () async => const Err<ProfileData>(UnreadableFileFailure()),
       ),
     );
 

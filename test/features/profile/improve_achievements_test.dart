@@ -1,19 +1,27 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/profile/data/achievement_rewriter.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/achievement_suggestion.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/domain/repositories/achievement_rewriter.dart';
+import 'package:rumbo/features/profile/domain/services/achievement_suggestions.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
+import 'package:rumbo/shared/domain/result.dart';
 
 class _FakeRewriter implements AchievementRewriter {
   String? askedFor;
 
   @override
-  Future<List<AchievementSuggestion>> suggest(String experienceId) async {
+  Future<Result<List<AchievementSuggestion>>> suggest(
+    String experienceId,
+  ) async {
     askedFor = experienceId;
-    return const [
+    return Ok<List<AchievementSuggestion>>(const <AchievementSuggestion>[
       AchievementSuggestion(
         index: 0,
         original: 'Responsable de mantener la app de pagos',
@@ -26,7 +34,7 @@ class _FakeRewriter implements AchievementRewriter {
         rewritten: 'Desarrollé pantallas en Flutter con Riverpod',
         reason: 'Verbo de acción',
       ),
-    ];
+    ]);
   }
 }
 
@@ -34,35 +42,35 @@ void main() {
   test('aplica las propuestas: sustituye por índice y añade las nuevas', () {
     expect(
       applySuggestions(
-        ['a', 'b', 'c'],
-        [
+        achievements: <String>['a', 'b', 'c'],
+        chosen: <({int? index, String text})>[
           (index: 1, text: ' B '),
           (index: null, text: 'd'),
           (index: 9, text: 'e'),
         ],
       ),
-      ['a', 'B', 'c', 'd', 'e'],
+      <String>['a', 'B', 'c', 'd', 'e'],
     );
     expect(placeholderPattern.hasMatch('reduje un [X %]'), isTrue);
     expect(placeholderPattern.hasMatch('reduje un 30 %'), isFalse);
   });
 
   testWidgets('mejora los logros desde la revisión y exige completar huecos', (
-    tester,
+    WidgetTester tester,
   ) async {
     tester.view.physicalSize = const Size(1080, 2400);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final repository = InMemoryProfileRepository(
+    final InMemoryProfileRepository repository = InMemoryProfileRepository(
       ProfileData(
         profile: const Profile(fullName: 'Juan Manzano'),
-        experiences: [
+        experiences: <Experience>[
           Experience(
             id: 'e1',
             company: 'GSE',
             role: 'Flutter Developer',
             startDate: DateTime(2024, 9),
-            achievements: const [
+            achievements: const <String>[
               'Responsable de mantener la app de pagos',
               'Trabajo con Flutter',
             ],
@@ -70,10 +78,10 @@ void main() {
         ],
       ),
     );
-    final rewriter = _FakeRewriter();
+    final _FakeRewriter rewriter = _FakeRewriter();
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           profileRepositoryProvider.overrideWithValue(repository),
           achievementRewriterProvider.overrideWithValue(rewriter),
@@ -87,7 +95,7 @@ void main() {
     await tester.tap(find.byKey(const Key('openReview')));
     await tester.pumpAndSettle();
 
-    final improve = find.byKey(const Key('improve-fewNumbers-e1'));
+    final Finder improve = find.byKey(const Key('improve-fewNumbers-e1'));
     await tester.scrollUntilVisible(
       improve,
       300,
@@ -106,7 +114,7 @@ void main() {
 
     // Con un hueco sin completar no se puede guardar.
     expect(find.byKey(const Key('fillPlaceholders')), findsOneWidget);
-    final save = find.byKey(const Key('saveImproved'));
+    final Finder save = find.byKey(const Key('saveImproved'));
     expect(tester.widget<FilledButton>(save).onPressed, isNull);
 
     await tester.enterText(
@@ -124,8 +132,12 @@ void main() {
     // De vuelta en la revisión, que avisa de que la nota subió.
     expect(find.text('Mejorar logros'), findsNothing);
     expect(find.textContaining('tu nota subió de'), findsOneWidget);
-    final saved = (await repository.load()).experiences.single.achievements;
-    expect(saved, [
+    final List<String> saved = (await repository.load())
+        .getOrThrow()
+        .experiences
+        .single
+        .achievements;
+    expect(saved, <String>[
       'Mantuve la app de pagos y reduje los errores un 30 %',
       'Desarrollé pantallas en Flutter con Riverpod',
     ]);

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
 
 void main() {
   group('ApplicationStatus', () {
     test('sigue el camino normal hasta la oferta aceptada', () {
-      const path = [
+      const List<ApplicationStatus> path = <ApplicationStatus>[
         ApplicationStatus.saved,
         ApplicationStatus.preparing,
         ApplicationStatus.applied,
@@ -14,7 +14,7 @@ void main() {
         ApplicationStatus.offer,
         ApplicationStatus.accepted,
       ];
-      for (var i = 0; i < path.length - 1; i++) {
+      for (int i = 0; i < path.length - 1; i++) {
         expect(path[i].canMoveTo(path[i + 1]), isTrue, reason: '${path[i]}');
       }
     });
@@ -31,7 +31,7 @@ void main() {
     });
 
     test('los estados finales no admiten cambios', () {
-      for (final status in [
+      for (final ApplicationStatus status in <ApplicationStatus>[
         ApplicationStatus.accepted,
         ApplicationStatus.declined,
         ApplicationStatus.rejected,
@@ -50,7 +50,7 @@ void main() {
     });
 
     test('el valor de base de datos es reversible', () {
-      for (final status in ApplicationStatus.values) {
+      for (final ApplicationStatus status in ApplicationStatus.values) {
         expect(ApplicationStatus.fromDb(status.dbValue), status);
       }
       expect(ApplicationStatus.technicalTest.dbValue, 'technical_test');

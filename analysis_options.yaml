@@ -1,5 +1,18 @@
 include: package:flutter_lints/flutter.yaml
 
+linter:
+  rules:
+    always_declare_return_types: true
+    always_specify_types: true
+    always_use_package_imports: true
+    curly_braces_in_flow_control_structures: true
+    directives_ordering: true
+    exhaustive_cases: true
+    lines_longer_than_80_chars: true
+    no_default_cases: true
+    prefer_single_quotes: true
+    require_trailing_commas: true
+
 analyzer:
   errors:
     # freezed requiere @JsonKey en los parámetros del constructor.
@@ -7,7 +20,11 @@ analyzer:
   exclude:
     - "**/*.freezed.dart"
     - "**/*.g.dart"
+    - lib/shared/configurations/language/**
     - build/**
     - android/**
     - ios/**
     - web/**
+
+plugins:
+  riverpod_lint: 3.1.9

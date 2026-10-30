@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/profile/data/profile_repository.dart';
-import 'package:rumbo/features/profile/domain/profile.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/profile/domain/entities/profile.dart';
+import 'package:rumbo/features/profile/infrastructure/di/profile_providers.dart';
+import 'package:rumbo/features/profile/infrastructure/repositories/in_memory_profile_repository.dart';
 
 Future<InMemoryProfileRepository> _openProfile(
   WidgetTester tester, [
@@ -15,10 +18,10 @@ Future<InMemoryProfileRepository> _openProfile(
   tester.view.devicePixelRatio = 2;
   addTearDown(tester.view.reset);
 
-  final repository = InMemoryProfileRepository(data);
+  final InMemoryProfileRepository repository = InMemoryProfileRepository(data);
   await tester.pumpWidget(
     ProviderScope(
-      overrides: [
+      overrides: <Override>[
         authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
         profileRepositoryProvider.overrideWithValue(repository),
       ],
@@ -32,7 +35,7 @@ Future<InMemoryProfileRepository> _openProfile(
 }
 
 void main() {
-  testWidgets('el perfil vacío indica qué falta', (tester) async {
+  testWidgets('el perfil vacío indica qué falta', (WidgetTester tester) async {
     await _openProfile(tester);
 
     expect(find.text('Perfil completo'), findsOneWidget);
@@ -42,9 +45,9 @@ void main() {
   });
 
   testWidgets('edita los datos básicos y valida nombre y enlaces', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final repository = await _openProfile(tester);
+    final InMemoryProfileRepository repository = await _openProfile(tester);
 
     await tester.tap(find.byKey(const Key('editBasics')));
     await tester.pumpAndSettle();
@@ -54,7 +57,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
-    expect((await repository.load()).profile, const Profile());
+    expect((await repository.load()).getOrThrow().profile, const Profile());
 
     await tester.ensureVisible(
       find.byKey(const Key('fullName'), skipOffstage: false),
@@ -82,22 +85,26 @@ void main() {
     expect(find.text('Ana Pérez'), findsOneWidget);
     expect(find.text('Desarrolladora Flutter'), findsOneWidget);
     expect(find.text('Añade tu primera experiencia laboral.'), findsOneWidget);
-    expect((await repository.load()).profile.links, {
-      ProfileLinks.github: 'https://github.com/ana',
-    });
+    expect(
+      (await repository.load()).getOrThrow().profile.links,
+      <String, String>{ProfileLinks.github: 'https://github.com/ana'},
+    );
   });
 
   testWidgets('guarda el nivel de inglés y la expectativa salarial', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final repository = await _openProfile(
+    final InMemoryProfileRepository repository = await _openProfile(
       tester,
       const ProfileData(profile: Profile(fullName: 'Ana Pérez')),
     );
     await tester.tap(find.byKey(const Key('editBasics')));
     await tester.pumpAndSettle();
 
-    final english = find.byKey(const Key('englishLevel'), skipOffstage: false);
+    final Finder english = find.byKey(
+      const Key('englishLevel'),
+      skipOffstage: false,
+    );
     await tester.ensureVisible(english);
     await tester.pumpAndSettle();
     await tester.tap(english);
@@ -132,7 +139,7 @@ void main() {
     await tester.tap(find.text('Guardar'));
     await tester.pumpAndSettle();
 
-    final profile = (await repository.load()).profile;
+    final Profile profile = (await repository.load()).getOrThrow().profile;
     expect(profile.englishLevel, LanguageLevel.c1);
     expect(profile.salaryCopMin, 6000000);
     expect(profile.salaryCopMax, 8000000);
@@ -147,8 +154,10 @@ void main() {
     );
   });
 
-  testWidgets('añade, edita y elimina una habilidad', (tester) async {
-    final repository = await _openProfile(tester);
+  testWidgets('añade, edita y elimina una habilidad', (
+    WidgetTester tester,
+  ) async {
+    final InMemoryProfileRepository repository = await _openProfile(tester);
 
     await tester.tap(find.byKey(const Key('addSkill')));
     await tester.pumpAndSettle();
@@ -169,17 +178,17 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.text('Eliminar'));
     await tester.pumpAndSettle();
-    expect((await repository.load()).skills, isEmpty);
+    expect((await repository.load()).getOrThrow().skills, isEmpty);
     expect(find.text('Aún no has añadido habilidades.'), findsOneWidget);
   });
 
   testWidgets('muestra la experiencia y permite eliminarla con confirmación', (
-    tester,
+    WidgetTester tester,
   ) async {
-    final repository = await _openProfile(
+    final InMemoryProfileRepository repository = await _openProfile(
       tester,
       ProfileData(
-        experiences: [
+        experiences: <Experience>[
           Experience(
             id: 'exp-1',
             company: 'Acme',
@@ -204,6 +213,6 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Tu perfil'), findsOneWidget);
-    expect((await repository.load()).experiences, isEmpty);
+    expect((await repository.load()).getOrThrow().experiences, isEmpty);
   });
 }

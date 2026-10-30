@@ -1,20 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rumbo/app.dart';
-import 'package:rumbo/features/applications/data/applications_repository.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/auth/data/auth_repository.dart';
-import 'package:rumbo/features/jobs/data/jobs_repository.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/offers/data/negotiation.dart';
-import 'package:rumbo/features/offers/data/offers_repository.dart';
-import 'package:rumbo/features/offers/domain/job_offer.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/applications/infrastructure/di/applications_providers.dart';
+import 'package:rumbo/features/applications/infrastructure/repositories/in_memory_applications_repository.dart';
+import 'package:rumbo/features/auth/infrastructure/di/auth_providers.dart';
+import 'package:rumbo/features/auth/infrastructure/repositories/local_auth_repository.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/jobs/infrastructure/di/jobs_providers.dart';
+import 'package:rumbo/features/jobs/infrastructure/repositories/in_memory_jobs_repository.dart';
+import 'package:rumbo/features/offers/domain/entities/job_offer.dart';
+import 'package:rumbo/features/offers/domain/entities/negotiation_draft.dart';
+import 'package:rumbo/features/offers/infrastructure/di/offers_providers.dart';
+import 'package:rumbo/features/offers/infrastructure/mappers/job_offer_mapper.dart';
+import 'package:rumbo/features/offers/infrastructure/repositories/in_memory_offers_repository.dart';
 
 void main() {
   test('el salario anual se compara en mensual', () {
-    const yearly = JobOffer(
+    const JobOffer yearly = JobOffer(
       applicationId: 'a',
       salary: 60000,
       period: SalaryPeriod.year,
@@ -24,38 +30,43 @@ void main() {
   });
 
   test('convierte filas de ofertas', () {
-    final offer = JobOffer(
+    final JobOffer offer = JobOffer(
       applicationId: 'a1',
       salary: 4500,
       currency: 'usd',
       workMode: WorkMode.remote,
       deadline: DateTime(2026, 11, 2),
     );
-    final row = offerToRow(offer);
+    final Map<String, dynamic> row = offerToRow(offer);
     expect(row['currency'], 'USD');
     expect(row['deadline'], '2026-11-02');
     expect(row['work_mode'], 'remote');
-    final back = offerFromRow({...row, 'salary': 4500});
+    final JobOffer back = offerFromRow(<String, dynamic>{
+      ...row,
+      'salary': 4500,
+    });
     expect(back.salary, 4500);
     expect(back.deadline, DateTime(2026, 11, 2));
   });
 
   test('convierte el borrador de negociación', () {
-    final draft = NegotiationDraft.fromJson({
+    final NegotiationDraft draft = NegotiationDraft.fromJson(<String, dynamic>{
       'email': 'Hola equipo…',
-      'talking_points': ['Publiqué 3 apps', 4],
-      'risks': [],
+      'talking_points': <Object>['Publiqué 3 apps', 4],
+      'risks': <dynamic>[],
     });
-    expect(draft.talkingPoints, ['Publiqué 3 apps']);
+    expect(draft.talkingPoints, <String>['Publiqué 3 apps']);
     expect(draft.risks, isEmpty);
   });
 
-  testWidgets('registra condiciones y compara dos ofertas', (tester) async {
+  testWidgets('registra condiciones y compara dos ofertas', (
+    WidgetTester tester,
+  ) async {
     tester.view.physicalSize = const Size(1080, 2600);
     tester.view.devicePixelRatio = 2;
     addTearDown(tester.view.reset);
-    final jobs = InMemoryJobsRepository();
-    for (final company in ['Forest', 'Beta']) {
+    final InMemoryJobsRepository jobs = InMemoryJobsRepository();
+    for (final String company in <String>['Forest', 'Beta']) {
       await jobs.save(
         SavedJob(
           job: Job(title: 'Flutter Developer', company: company),
@@ -63,15 +74,16 @@ void main() {
         ),
       );
     }
-    final applications = InMemoryApplicationsRepository(jobs);
-    final ids = <String, String>{};
-    for (final saved in await jobs.list()) {
-      final app = await applications.save(
+    final InMemoryApplicationsRepository applications =
+        InMemoryApplicationsRepository(jobs);
+    final Map<String, String> ids = <String, String>{};
+    for (final SavedJob saved in (await jobs.list()).getOrThrow()) {
+      final Application app = (await applications.save(
         Application(jobId: saved.job.id, status: ApplicationStatus.offer),
-      );
+      )).getOrThrow();
       ids[saved.job.company] = app.id;
     }
-    final offers = InMemoryOffersRepository();
+    final InMemoryOffersRepository offers = InMemoryOffersRepository();
     await offers.save(
       JobOffer(
         applicationId: ids['Beta']!,
@@ -82,7 +94,7 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [
+        overrides: <Override>[
           authRepositoryProvider.overrideWithValue(const LocalAuthRepository()),
           jobsRepositoryProvider.overrideWithValue(jobs),
           applicationsRepositoryProvider.overrideWithValue(applications),

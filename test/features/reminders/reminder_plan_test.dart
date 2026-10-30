@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rumbo/features/applications/domain/application.dart';
-import 'package:rumbo/features/applications/domain/application_status.dart';
-import 'package:rumbo/features/interviews/domain/interview.dart';
-import 'package:rumbo/features/jobs/domain/job.dart';
-import 'package:rumbo/features/reminders/domain/reminder_plan.dart';
+import 'package:rumbo/features/applications/domain/entities/application.dart';
+import 'package:rumbo/features/applications/domain/entities/application_status.dart';
+import 'package:rumbo/features/interviews/domain/entities/interview.dart';
+import 'package:rumbo/features/jobs/domain/entities/job.dart';
+import 'package:rumbo/features/reminders/domain/services/reminder_plan.dart';
 
 void main() {
-  final now = DateTime(2026, 10, 16, 10);
+  final DateTime now = DateTime(2026, 10, 16, 10);
 
   ApplicationWithJob process(
     String id, {
@@ -23,8 +23,8 @@ void main() {
   );
 
   test('seguimiento a las 9:00 del día que toca; los pasados no', () {
-    final plan = planReminders(
-      applications: [
+    final List<PlannedReminder> plan = planReminders(
+      applications: <ApplicationWithJob>[
         process('a', followUp: DateTime(2026, 10, 20, 15)),
         // Hoy, pero ya pasaron las 9:00: Inicio ya lo muestra.
         process('b', followUp: DateTime(2026, 10, 16, 8)),
@@ -35,7 +35,7 @@ void main() {
           followUp: DateTime(2026, 10, 25),
         ),
       ],
-      interviews: const [],
+      interviews: const <Interview>[],
       now: now,
     );
     expect(plan, hasLength(1));
@@ -45,9 +45,9 @@ void main() {
   });
 
   test('entrevista: la víspera a las 19:00 y una hora antes', () {
-    final plan = planReminders(
-      applications: [process('a')],
-      interviews: [
+    final List<PlannedReminder> plan = planReminders(
+      applications: <ApplicationWithJob>[process('a')],
+      interviews: <Interview>[
         Interview(applicationId: 'a', scheduledAt: DateTime(2026, 10, 18, 10)),
         // Mañana temprano: la víspera es hoy a las 19:00, aún a tiempo.
         Interview(applicationId: 'a', scheduledAt: DateTime(2026, 10, 17, 9)),
@@ -56,32 +56,38 @@ void main() {
       ],
       now: now,
     );
-    expect(plan.map((r) => (r.kind, r.at)).toList(), [
-      (ReminderKind.interviewEve, DateTime(2026, 10, 16, 19)),
-      (ReminderKind.interviewSoon, DateTime(2026, 10, 17, 8)),
-      (ReminderKind.interviewEve, DateTime(2026, 10, 17, 19)),
-      (ReminderKind.interviewSoon, DateTime(2026, 10, 18, 9)),
-    ]);
+    expect(
+      plan.map((PlannedReminder r) => (r.kind, r.at)).toList(),
+      <(ReminderKind, DateTime)>[
+        (ReminderKind.interviewEve, DateTime(2026, 10, 16, 19)),
+        (ReminderKind.interviewSoon, DateTime(2026, 10, 17, 8)),
+        (ReminderKind.interviewEve, DateTime(2026, 10, 17, 19)),
+        (ReminderKind.interviewSoon, DateTime(2026, 10, 18, 9)),
+      ],
+    );
     // Cada aviso tiene su número y es el mismo al volver a planificar.
-    expect(plan.map((r) => r.id).toSet(), hasLength(4));
-    final again = planReminders(
-      applications: [process('a')],
-      interviews: [
+    expect(plan.map((PlannedReminder r) => r.id).toSet(), hasLength(4));
+    final List<PlannedReminder> again = planReminders(
+      applications: <ApplicationWithJob>[process('a')],
+      interviews: <Interview>[
         Interview(applicationId: 'a', scheduledAt: DateTime(2026, 10, 18, 10)),
       ],
       now: now,
     );
     expect(again.first.id, plan[2].id);
-    expect(plan.every((r) => r.id >= 0 && r.id < 0x80000000), isTrue);
+    expect(
+      plan.every((PlannedReminder r) => r.id >= 0 && r.id < 0x80000000),
+      isTrue,
+    );
   });
 
   test('no pasa del máximo que admite iOS', () {
-    final plan = planReminders(
-      applications: [
-        for (var i = 0; i < 80; i++)
+    final List<PlannedReminder> plan = planReminders(
+      applications: <ApplicationWithJob>[
+        for (int i = 0; i < 80; i++)
           process('p$i', followUp: now.add(Duration(days: i + 1))),
       ],
-      interviews: const [],
+      interviews: const <Interview>[],
       now: now,
     );
     expect(plan, hasLength(maxReminders));

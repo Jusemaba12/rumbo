@@ -92,7 +92,7 @@ Diseño y fases en `docs/diseno-rumbo.html`. Supabase: proyecto `bwmrwozsgkdpddt
 - Refactor (rama `refactor/codegen`, 19 oct 2026): Flutter 3.47.7, los 58 providers con anotaciones, freezed en todos los modelos y rutas tipadas. Mismas URL, 149 tests en verde; compila para web, Android e iOS y se recorrió en el simulador con la cuenta real.
 - HV → botón de descarga en la barra: PDF de la HV base con el formato de las adaptadas (`baseResumeDraft` en `resume_pdf.dart`, compartir o descargar con `pdfSharerProvider`). En Ofertas → Guardadas no salen las ofertas cuyo proceso va de Postulada en adelante (se siguen en Procesos).
 - Refactor de arquitectura (rama `refactor/arquitectura`, oct 2026): capas por funcionalidad, `Result`/`Failure`, casos de uso con providers, lints estrictos, tests de convenciones y de traducciones. 182 tests en verde; compila para web y Android. Falta recorrerla en iOS y Android.
-- Instalada en el iPhone del usuario con firma gratuita (última instalación: 29 oct 2026, con descarga de la HV base; caduca hacia el 5 nov).
+- Instalada en el iPhone del usuario con firma gratuita (última instalación: 30 oct 2026, con el refactor de arquitectura; caduca hacia el 6 nov).
 
 **Pendiente**
 - Probar con uso real: lectura de Gmail con respuestas reales de empresas, alertas reales de LinkedIn (el formato se dedujo sin ver un correo real; el usuario debe pegar el script v2) y la fase 4 completa.
